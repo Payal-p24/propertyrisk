@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PropertyRisk · Mumbai DP 2034 Scanner</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+:root{
+  --ink:#0E1C2F;--ink-2:#2D4059;--ink-3:#5C7089;--ink-4:#9BAABB;
+  --paper:#F7F5F0;--paper-2:#EDEAE3;--paper-3:#E2DED6;
+  --gold:#C4952A;
+  --red:#B93535;--red-lt:#FAEAEA;--red-bd:#DDAAAA;
+  --amber:#A05A1A;--amber-lt:#FBF0E2;--amber-bd:#D9B87A;
+  --green:#2A6645;--green-lt:#E4F2EB;--green-bd:#88C4A5;
+  --blue:#1A4E8C;--blue-lt:#E4EDF8;--blue-bd:#85B7EB;
+  --purple:#5B3FA6;--teal:#1A6E6E;
+  --radius:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.5;}
+.header{background:var(--ink);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:200;}
+.hbrand{display:flex;align-items:center;gap:10px;}
+.hlogo{width:28px;height:28px;background:var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;}
+.hlogo i{font-size:16px;color:var(--ink);}
+.htitle{font-family:'DM Serif Display',serif;font-size:17px;color:#fff;}
+.htitle span{color:var(--gold);}
+.hbadges{display:flex;gap:8px;}
+.hbadge{font-size:10px;font-weight:500;letter-spacing:.06em;padding:3px 8px;border-radius:99px;text-transform:uppercase;}
+.hb-live{background:rgba(44,180,100,.15);color:#4FCE85;border:.5px solid rgba(44,180,100,.3);}
+.hb-layers{background:rgba(196,149,42,.15);color:var(--gold);border:.5px solid rgba(196,149,42,.3);}
+.layout{display:grid;grid-template-columns:360px 1fr;min-height:calc(100vh - 56px);}
+.left{background:#fff;border-right:1px solid var(--paper-3);padding:1.25rem;overflow-y:auto;display:flex;flex-direction:column;gap:1rem;}
+.slabel{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);margin-bottom:7px;}
+.ainput{width:100%;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--paper-3);border-radius:var(--radius);outline:none;transition:border-color .15s;}
+.ainput:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,78,140,.1);background:#fff;}
+.ainput::placeholder{color:var(--ink-4);}
+.asel{width:100%;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--paper-3);border-radius:var(--radius);outline:none;appearance:none;}
+.radius-disp{display:flex;justify-content:space-between;margin-bottom:7px;}
+.radius-num{font-family:'DM Serif Display',serif;font-size:20px;}
+.rslider{width:100%;-webkit-appearance:none;height:3px;background:var(--paper-3);border-radius:99px;outline:none;cursor:pointer;}
+.rslider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--ink);border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--ink);}
+.rmarks{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-4);margin-top:4px;}
+.sbtn{width:100%;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#fff;background:var(--ink);border:none;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;}
+.sbtn:hover:not(:disabled){background:var(--ink-2);}
+.sbtn:disabled{opacity:.45;cursor:not-allowed;}
+.smsg{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:6px;min-height:20px;}
+.lchips{display:flex;flex-wrap:wrap;gap:5px;}
+.lchip{display:flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:99px;border:.5px solid var(--paper-3);color:var(--ink-3);background:var(--paper);transition:all .2s;}
+.lchip i{font-size:11px;}
+.lchip.loading{border-color:var(--blue-bd);color:var(--blue);background:var(--blue-lt);}
+.lchip.done{border-color:var(--green-bd);color:var(--green);background:var(--green-lt);}
+.divider{height:1px;background:var(--paper-2);}
+.iblock{background:var(--paper);border-radius:var(--radius);padding:11px;}
+.ititle{font-size:11px;font-weight:500;color:var(--ink-2);margin-bottom:7px;}
+.irow{display:flex;gap:7px;align-items:flex-start;font-size:11px;color:var(--ink-3);padding:3px 0;}
+.irow i{font-size:12px;color:var(--ink-4);flex-shrink:0;margin-top:1px;}
+.sbtn2{text-align:left;background:none;border:none;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--blue);cursor:pointer;padding:2px 0;display:block;}
+.sbtn2:hover{text-decoration:underline;}
+.right{display:flex;flex-direction:column;overflow:hidden;}
+#map-wrap{height:320px;position:relative;background:var(--paper-2);flex-shrink:0;border-bottom:1px solid var(--paper-3);}
+#map{height:100%;width:100%;}
+.mmt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--ink-4);font-size:13px;pointer-events:none;}
+.mmt i{font-size:32px;opacity:.3;}
+.mleg{position:absolute;bottom:10px;left:10px;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);border:.5px solid var(--paper-3);border-radius:var(--radius);padding:7px 10px;display:none;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--ink-3);z-index:500;}
+.mleg.show{display:flex;}
+.ml{display:flex;align-items:center;gap:5px;}
+.mldot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+.rarea{flex:1;overflow-y:auto;padding:1.25rem;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.vcard{border-radius:var(--radius);border:1px solid;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem;margin-bottom:1rem;animation:fadeUp .3s ease;}
+.vi{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.vi i{font-size:21px;}
+.vlabel{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px;}
+.vtitle{font-family:'DM Serif Display',serif;font-size:17px;color:var(--ink);line-height:1.2;}
+.vsub{font-size:11px;color:var(--ink-3);margin-top:3px;}
+.scoreb{margin-left:auto;text-align:center;flex-shrink:0;}
+.scoren{font-family:'DM Serif Display',serif;font-size:34px;line-height:1;}
+.scorel{font-size:10px;color:var(--ink-3);letter-spacing:.05em;}
+.stats6{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:1rem;}
+.sc{background:#fff;border:1px solid var(--paper-3);border-radius:var(--radius);padding:9px 10px;}
+.sv{font-family:'DM Serif Display',serif;font-size:20px;line-height:1;}
+.sl{font-size:9px;color:var(--ink-3);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+.tabs{display:flex;border-bottom:1px solid var(--paper-3);margin-bottom:1rem;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:8px 12px;font-size:12px;font-weight:500;cursor:pointer;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--ink-3);margin-bottom:-1px;white-space:nowrap;}
+.tab:hover{color:var(--ink);}
+.tab.active{color:var(--ink);border-bottom-color:var(--ink);}
+.tpanel{display:none;animation:fadeUp .2s ease;}
+.tpanel.active{display:block;}
+.fi{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--paper-2);}
+.fi:last-child{border-bottom:none;}
+.fsev{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:99px;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;margin-top:2px;border:.5px solid;}
+.fb{flex:1;min-width:0;}
+.ftitle{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px;}
+.fdesc{font-size:12px;color:var(--ink-3);line-height:1.6;}
+.fmeta{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--ink-4);margin-top:5px;}
+.ftag{padding:2px 5px;border-radius:3px;background:var(--paper);font-size:10px;color:var(--ink-3);font-weight:500;}
+.checklist{background:#fff;border:1px solid var(--paper-3);border-radius:var(--radius);overflow:hidden;}
+.crow{display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid var(--paper-2);font-size:13px;color:var(--ink);}
+.crow:last-child{border-bottom:none;}
+.crow i{font-size:16px;flex-shrink:0;}
+.sbox{background:#fff;border:1px solid var(--paper-3);border-radius:var(--radius);padding:.9rem 1.1rem;font-size:13px;color:var(--ink-2);line-height:1.7;margin-bottom:1rem;}
+.zcard{background:#fff;border:1px solid var(--paper-3);border-radius:var(--radius);overflow:hidden;margin-bottom:.75rem;}
+.zrow{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid var(--paper-2);font-size:13px;}
+.zrow:last-child{border-bottom:none;}
+.zkey{color:var(--ink-3);}
+.zval{font-weight:500;color:var(--ink);text-align:right;max-width:60%;}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+.ccard{background:#fff;border:1px solid var(--paper-3);border-radius:var(--radius);padding:1rem;}
+.cclabel{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:8px;}
+.cctitle{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);line-height:1;}
+.ccsub{font-size:11px;color:var(--ink-3);margin-top:3px;}
+.brow{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.blabel{font-size:12px;color:var(--ink-2);width:80px;flex-shrink:0;}
+.btrack{flex:1;height:7px;background:var(--paper-2);border-radius:99px;overflow:hidden;}
+.bfill{height:100%;border-radius:99px;}
+.bval{font-size:11px;color:var(--ink-3);width:36px;text-align:right;flex-shrink:0;}
+.donut-wrap{display:flex;align-items:center;gap:12px;padding:.75rem;background:var(--paper);border-radius:var(--radius);margin-bottom:.75rem;}
+.donut-svg-wrap{position:relative;width:72px;height:72px;flex-shrink:0;}
+.donut-svg-wrap svg{transform:rotate(-90deg);}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.donut-pct{font-family:'DM Serif Display',serif;font-size:14px;color:var(--ink);line-height:1;}
+.donut-name{font-size:9px;color:var(--ink-3);}
+.dom-legend{flex:1;}
+.domrow{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--ink-2);padding:3px 0;border-bottom:.5px solid var(--paper-2);}
+.domrow:last-child{border-bottom:none;}
+.domdot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0;}
+.crisk{background:var(--amber-lt);border:1px solid var(--amber-bd);border-radius:var(--radius);padding:10px 13px;font-size:12px;color:var(--amber);margin-bottom:.75rem;display:flex;gap:8px;align-items:flex-start;line-height:1.6;}
+.cnote{font-size:11px;color:var(--ink-4);padding:8px 10px;background:var(--paper);border-radius:var(--radius);line-height:1.5;}
+.habsum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem;}
+.habcard{background:#fff;border:1px solid var(--paper-3);border-radius:var(--radius);padding:10px;text-align:center;}
+.habicon{font-size:20px;margin-bottom:4px;}
+.habcount{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);}
+.hablabel{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;}
+.hablist{background:#fff;border:1px solid var(--paper-3);border-radius:var(--radius);overflow:hidden;margin-bottom:.75rem;}
+.hablist-title{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);padding:9px 13px;background:var(--paper);border-bottom:1px solid var(--paper-2);}
+.habitem{display:flex;align-items:center;gap:10px;padding:8px 13px;border-bottom:.5px solid var(--paper-2);font-size:12px;color:var(--ink-2);}
+.habitem:last-child{border-bottom:none;}
+.habitem i{font-size:14px;color:var(--ink-4);flex-shrink:0;}
+.habdist{font-size:10px;color:var(--ink-4);margin-left:auto;}
+.aalert{background:var(--amber-lt);border:1px solid var(--amber-bd);border-radius:var(--radius);padding:10px 13px;font-size:13px;color:var(--amber);display:flex;gap:8px;align-items:flex-start;margin-bottom:.75rem;}
+.aalert i{font-size:15px;flex-shrink:0;margin-top:1px;}
+.actrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--paper-2);}
+.actbtn{padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--paper-3);border-radius:var(--radius);background:#fff;color:var(--ink-2);display:flex;align-items:center;gap:5px;}
+.actbtn:hover{background:var(--paper);}
+.actbtn.primary{background:var(--ink);color:#fff;border-color:var(--ink);}
+.actbtn.primary:hover{background:var(--ink-2);}
+.srcnote{font-size:10px;color:var(--ink-4);margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--paper-2);display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.empty{text-align:center;padding:2rem 1rem;color:var(--ink-4);font-size:13px;}
+.empty i{font-size:26px;display:block;margin-bottom:7px;opacity:.4;}
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:2rem;}
+.welcome-icon{width:64px;height:64px;border-radius:16px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;}
+.welcome-icon i{font-size:30px;color:var(--ink-3);}
+.welcome h2{font-family:'DM Serif Display',serif;font-size:21px;color:var(--ink);margin-bottom:7px;}
+.welcome p{font-size:13px;color:var(--ink-3);max-width:340px;line-height:1.7;}
+.wchips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:1.25rem;}
+.wchip{font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid var(--paper-3);color:var(--ink-3);background:#fff;display:flex;align-items:center;gap:5px;}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--paper-3);border-top-color:var(--ink);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.errbox{background:var(--red-lt);border:1px solid var(--red-bd);border-radius:var(--radius);padding:11px 13px;font-size:13px;color:var(--red);display:flex;gap:8px;align-items:flex-start;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--paper-3);border-radius:99px;}
+@media(max-width:768px){.layout{grid-template-columns:1fr;}.stats6{grid-template-columns:repeat(3,1fr);}.cgrid{grid-template-columns:1fr;}.habsum{grid-template-columns:repeat(2,1fr);}.hbadges{display:none;}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="hbrand">
+    <div class="hlogo"><i class="ti ti-building-bank"></i></div>
+    <div class="htitle">Property<span>Risk</span></div>
+  </div>
+  <div class="hbadges">
+    <span class="hbadge hb-live">Live GIS</span>
+    <span class="hbadge hb-layers">5 Cities</span>
+  </div>
+</header>
+<div class="layout">
+  <aside class="left">
+    <div>
+      <div class="slabel">Property Address</div>
+      <input class="ainput" type="text" id="addr" placeholder="14 Linking Road, Bandra West" onkeydown="if(event.key==='Enter')doScan()"/>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div class="slabel">PIN Code</div>
+        <input class="ainput" type="text" id="pincode" placeholder="e.g. 400050" maxlength="6" onkeydown="if(event.key==='Enter')doScan()"/>
+      </div>
+      <div>
+        <div class="slabel">City Plan</div>
+        <select class="asel" id="city-sel" onchange="onCityChange()">
+  <option value="mumbai">Mumbai — DP 2034</option>
+  <option value="bengaluru">Bengaluru — CDP 2031</option>
+  <option value="hyderabad">Hyderabad — Master Plan 2031</option>
+  <option value="chennai">Chennai — Master Plan 2026</option>
+  <option value="pune">Pune — DP 2041</option>
+</select>
+      </div>
+    </div>
+    <div>
+      <div class="slabel">Scan Radius</div>
+      <div class="radius-disp">
+        <span><span class="radius-num" id="rv">1.0</span><span style="font-size:12px;color:var(--ink-3)"> km</span></span>
+        <span style="font-size:10px;color:var(--ink-4)">500m – 3km</span>
+      </div>
+      <input class="rslider" type="range" id="radius" min="500" max="3000" step="250" value="1000"
+        oninput="document.getElementById('rv').textContent=Math.round(this.value/100)/10"/>
+      <div class="rmarks"><span>0.5</span><span>1</span><span>1.5</span><span>2</span><span>2.5</span><span>3</span></div>
+    </div>
+    <div id="city-note" style="display:none;font-size:11px;color:#A05A1A;padding:7px 10px;background:#FBF0E2;border-radius:6px;border:0.5px solid #D9B87A;line-height:1.5;"></div>
+    <button class="sbtn" id="sbtn" onclick="doScan()"><i class="ti ti-scan"></i> Run Full Risk Scan</button>
+    <div class="smsg" id="status"></div>
+    <div class="lchips" id="lp" style="display:none">
+      <div class="lchip" id="lp-dp"><i class="ti ti-map-pin"></i>DP Reservations</div>
+      <div class="lchip" id="lp-acq"><i class="ti ti-gavel"></i>Acquisitions</div>
+      <div class="lchip" id="lp-wb"><i class="ti ti-droplet"></i>Waterbodies</div>
+      <div class="lchip" id="lp-zone"><i class="ti ti-layers-intersect"></i>Ward Zone</div>
+      <div class="lchip" id="lp-census"><i class="ti ti-users"></i>Census</div>
+      <div class="lchip" id="lp-hab"><i class="ti ti-building"></i>Habitat</div>
+      <div class="lchip" id="lp-wris"><i class="ti ti-ripple"></i>Rivers (WRIS)</div>
+    </div>
+    <div class="divider"></div>
+    <div class="iblock">
+      <div class="ititle">Data Layers</div>
+      <div class="irow"><i class="ti ti-map-pin"></i>MCGM DP_KYW — DP 2034 reservations</div>
+      <div class="irow"><i class="ti ti-gavel"></i>MCGM DP_MIS — land acquisition records</div>
+      <div class="irow"><i class="ti ti-droplet"></i>MCGM BaseLayersgdb — waterbodies & zones</div>
+      <div class="irow"><i class="ti ti-users"></i>Census 2011 — ward-level demographics</div>
+      <div class="irow"><i class="ti ti-building"></i>OpenStreetMap Overpass — habitat POIs</div>
+      <div class="irow"><i class="ti ti-map"></i>OSM Nominatim — geocoding</div>
+    </div>
+    <div class="iblock">
+      <div class="ititle">Try these addresses</div>
+      <div id="sample-addrs"></div>
+    </div>
+  </aside>
+  <main class="right">
+    <div id="map-wrap">
+      <div id="map"></div>
+      <div class="mmt" id="mmt"><i class="ti ti-map-2"></i><span>Enter address and scan</span></div>
+      <div class="mleg" id="mleg">
+        <div class="ml"><div class="mldot" style="background:#B93535"></div>High risk</div>
+        <div class="ml"><div class="mldot" style="background:#A05A1A"></div>Medium</div>
+        <div class="ml"><div class="mldot" style="background:#2A6645"></div>Positive</div>
+        <div class="ml"><div class="mldot" style="background:#1A4E8C"></div>Waterbody</div>
+        <div class="ml"><div class="mldot" style="background:#5B3FA6;border-radius:50%"></div>Worship</div>
+        <div class="ml"><div class="mldot" style="background:#B93535;border-style:dashed;border-width:1px;background:transparent;border-color:#B93535;border-radius:50%"></div>Heritage buffer</div>
+        <div class="ml"><div class="mldot" style="background:#0E1C2F;border-radius:50%"></div>Property</div>
+      </div>
+    </div>
+    <div class="rarea" id="report">
+      <div class="welcome">
+        <div class="welcome-icon"><i class="ti ti-building-bank"></i></div>
+        <h2>Mumbai DP 2034 · Property Risk</h2>
+        <p>Enter a property address for a full risk scan across GIS reservations, land acquisitions, waterbodies, census demographics, and live habitat intelligence.</p>
+        <div class="wchips">
+          <div class="wchip"><i class="ti ti-map-pin"></i>DP 2034 GIS</div>
+          <div class="wchip"><i class="ti ti-gavel"></i>Acquisitions</div>
+          <div class="wchip"><i class="ti ti-users"></i>Census 2011</div>
+          <div class="wchip"><i class="ti ti-building"></i>Habitat POIs</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+// ── CITY CONFIGURATION ──
+var CITIES = {
+  mumbai: {
+    name: 'Mumbai',
+    plan: 'DP 2034',
+    authority: 'MCGM',
+    geocodeSuffix: 'Mumbai, Maharashtra, India',
+    hasLiveGIS: true,
+    mapCenter: [19.076, 72.877],
+    mapZoom: 13,
+    riskRules: ['burial_ground','dumping_ground','mangrove_ndz','crz_coastal','high_tension','slum_rehab','road_widening'],
+    samples: ['Dharavi, Sion','Bandra Kurla Complex','Govandi','Malad West','Borivali West','Kurla West'],
+    waqfRisk: true,
+    floodRisk: 'high',
+  },
+  bengaluru: {
+    name: 'Bengaluru',
+    plan: 'CDP 2031',
+    authority: 'BDA / BBMP',
+    geocodeSuffix: 'Bengaluru, Karnataka, India',
+    hasLiveGIS: false,
+    mapCenter: [12.971, 77.594],
+    mapZoom: 13,
+    riskRules: ['lake_encroachment','raja_kaluve','storm_drain','bdp_zone','industrial_corridor'],
+    samples: ['Whitefield','Koramangala','Indiranagar','Hebbal','Electronic City','Jayanagar'],
+    waqfRisk: false,
+    floodRisk: 'medium',
+  },
+  hyderabad: {
+    name: 'Hyderabad',
+    plan: 'Master Plan 2031',
+    authority: 'HMDA / GHMC',
+    geocodeSuffix: 'Hyderabad, Telangana, India',
+    hasLiveGIS: false,
+    mapCenter: [17.385, 78.486],
+    mapZoom: 13,
+    riskRules: ['nala_encroachment','ftz_zone','orr_corridor','heritage_zone','industrial_zone'],
+    samples: ['Madhapur','Gachibowli','Banjara Hills','Kukatpally','LB Nagar','Secunderabad'],
+    waqfRisk: true,
+    floodRisk: 'medium',
+  },
+  chennai: {
+    name: 'Chennai',
+    plan: 'Master Plan 2026',
+    authority: 'CMDA / GCC',
+    geocodeSuffix: 'Chennai, Tamil Nadu, India',
+    hasLiveGIS: false,
+    mapCenter: [13.082, 80.270],
+    mapZoom: 13,
+    riskRules: ['coastal_regulation','flood_prone','heritage_zone','industrial_zone','storm_water_drain'],
+    samples: ['Adyar','T Nagar','Velachery','Sholinganallur','Anna Nagar','Porur'],
+    waqfRisk: false,
+    floodRisk: 'high',
+  },
+  pune: {
+    name: 'Pune',
+    plan: 'DP 2041',
+    authority: 'PMC / PCMC',
+    geocodeSuffix: 'Pune, Maharashtra, India',
+    hasLiveGIS: false,
+    mapCenter: [18.520, 73.856],
+    mapZoom: 13,
+    riskRules: ['nallah_zone','heritage_precinct','flood_line','industrial_zone','dp_road'],
+    samples: ['Koregaon Park','Hinjewadi','Hadapsar','Kothrud','Wakad','Viman Nagar'],
+    waqfRisk: false,
+    floodRisk: 'medium',
+  },
+};
+
+var currentCity = 'mumbai';
+
+function onCityChange() {
+  var sel = document.getElementById('city-sel');
+  currentCity = sel ? sel.value : 'mumbai';
+  renderSamples();
+  // Update status note
+  var city = CITIES[currentCity];
+  var note = document.getElementById('city-note');
+  if (note) {
+    if (!city.hasLiveGIS) {
+      note.innerHTML = '<i class="ti ti-info-circle" style="font-size:11px;vertical-align:-1px"></i> ' + city.name + ': Census 2011 + OSM Habitat live. DP GIS API not publicly exposed — city-specific risk rules applied from published plan.';
+      note.style.display = 'block';
+    } else {
+      note.style.display = 'none';
+    }
+  }
+}
+
+function renderSamples() {
+  var city = CITIES[currentCity] || CITIES.mumbai;
+  var el = document.getElementById('sample-addrs');
+  if (!el) return;
+  el.innerHTML = city.samples.map(function(s) {
+    return '<button class="sbtn2" onclick="setAddr(\'' + s.replace(/'/g,"\\'") + '\')">→ ' + s + '</button>';
+  }).join('');
+}
+
+// City-specific risk rules for non-GIS cities
+function getCityRiskFlags(city, censusData, habElements) {
+  var flags = [];
+  var rules = city.riskRules || [];
+
+  // Waqf risk for high-Muslim areas
+  if (city.waqfRisk && censusData.muslim >= 30) {
+    flags.push({sev:'amber', title:'Waqf Board encumbrance risk',
+      ex:'Muslim community ' + censusData.muslim + '% in this ward. Properties in areas with significant Muslim populations require Waqf Board encumbrance check — any Waqf-registered land is non-mortgageable.',
+      tag:'Community risk', dist:null, ward:null, extra:''});
+  }
+
+  // Flood risk from city config
+  if (city.floodRisk === 'high') {
+    flags.push({sev:'amber', title:'City-level flood risk — ' + city.name,
+      ex:city.name + ' is classified as high flood-risk by NDMA. ' + (city.name==='Mumbai'?'Annual monsoon flooding affects low-lying areas. Check MCGM flood zone maps for this specific plot.':city.name==='Chennai'?'Chennai has experienced catastrophic flooding (2015, 2021). Check CMDA flood vulnerability maps for this plot.':'Verify plot elevation and proximity to water bodies.'),
+      tag:'Flood risk', dist:null, ward:null, extra:''});
+  }
+
+  // High slum density
+  if (censusData.slum >= 55) {
+    flags.push({sev:'red', title:'Very high slum density in ward',
+      ex:'Ward ' + censusData.ward + ' has ' + censusData.slum + '% slum population per Census 2011. Title documentation risk is high — verify formal ownership and check for SRA/MHADA encumbrances.',
+      tag:'Slum density', dist:null, ward:censusData.ward, extra:''});
+  }
+
+  // Industrial habitat nearby
+  var hasIndustrial = habElements.some(function(e){ return (e.tags||{}).landuse === 'industrial'; });
+  if (hasIndustrial) {
+    flags.push({sev:'amber', title:'Industrial land use nearby',
+      ex:'OpenStreetMap data shows industrial land within scan radius. Legacy industrial areas may have contamination or hazardous material risk affecting residential collateral.',
+      tag:'Habitat risk', dist:null, ward:null, extra:''});
+  }
+
+  // City-specific rules
+  if (currentCity === 'bengaluru') {
+    flags.push({sev:'amber', title:'BDA CDP 2031 — verify Raja Kaluve / storm drain',
+      ex:'Bengaluru has 838 km of storm water drains (Raja Kaluves). Properties adjacent to or encroaching on these drains are at high risk of demolition notices. Verify BBMP storm drain maps before sanction.',
+      tag:'BDA CDP 2031', dist:null, ward:null, extra:''});
+    flags.push({sev:'amber', title:'BDA lake buffer zone — 30m setback rule',
+      ex:'Bengaluru has 207 lakes under BBMP/BDA jurisdiction. A 30m buffer zone applies to all lakes — construction within this zone is illegal. Verify proximity to lakes on BWSSB/BBMP maps.',
+      tag:'BDA CDP 2031', dist:null, ward:null, extra:''});
+  } else if (currentCity === 'hyderabad') {
+    flags.push({sev:'amber', title:'HMDA Full Tank Level (FTL) — 30m buffer',
+      ex:'HMDA enforces a 30m No Development Zone around all lakes at Full Tank Level. Any construction within this buffer is illegal under GO MS 111. Verify on HMDA GIS portal.',
+      tag:'HMDA MP 2031', dist:null, ward:null, extra:''});
+    flags.push({sev:'amber', title:'GHMC Nala / storm drain proximity',
+      ex:'Hyderabad has 1,450+ nalas. Structures on or adjacent to nalas are subject to eviction drives. GHMC periodically demolishes encroachments — verify nala boundaries before sanction.',
+      tag:'GHMC / HMDA', dist:null, ward:null, extra:''});
+  } else if (currentCity === 'chennai') {
+    flags.push({sev:'red', title:'Coastal Regulation Zone (CRZ) — Chennai',
+      ex:'Large parts of Chennai fall within CRZ I, II or III under the CRZ Notification 2019. CRZ-I prohibits all construction. CRZ-II and III have restrictions. Verify CRZ classification with CZMA before loan sanction.',
+      tag:'CMDA / CRZ', dist:null, ward:null, extra:''});
+    flags.push({sev:'amber', title:'CMDA Second Master Plan — verify land use',
+      ex:'CMDA Second Master Plan 2026 classifies land into residential, commercial, industrial, public & semi-public zones. Non-conforming use can void a loan. Verify with CMDA land use certificate.',
+      tag:'CMDA MP 2026', dist:null, ward:null, extra:''});
+  } else if (currentCity === 'pune') {
+    flags.push({sev:'amber', title:'PMC / PCMC DP 2041 — reserved plot check',
+      ex:'Pune DP 2041 has extensive road, amenity and open space reservations. Reserved plots have government acquisition risk. Verify plot reservation status on PMC / PCMC property search portal.',
+      tag:'PMC DP 2041', dist:null, ward:null, extra:''});
+    flags.push({sev:'amber', title:'Mutha / Mula river flood line — blue flood line',
+      ex:'PMC has demarcated blue and red flood lines along Mula-Mutha rivers. Construction within the blue flood line is prohibited. Verify with PMC Town Planning department.',
+      tag:'PMC / PCMC', dist:null, ward:null, extra:''});
+  }
+
+  return flags;
+}
+
+
+// ── SEISMIC ZONE DATA (IS 1893:2016 — BIS operative standard) ──
+var SEISMIC_ZONES = {
+  // Zone II — Low damage risk (Z=0.10)
+  'bengaluru':  {zone:'II', factor:0.10, risk:'Low',    color:'#2A6645', bg:'#E4F2EB', bd:'#88C4A5',
+    desc:'Bengaluru falls in Zone II — lowest seismic risk. Standard RCC construction norms apply. No specific seismic surcharge on LTV required.'},
+  'mysuru':     {zone:'II', factor:0.10, risk:'Low',    color:'#2A6645', bg:'#E4F2EB', bd:'#88C4A5', desc:'Zone II — low risk.'},
+  'hyderabad':  {zone:'II', factor:0.10, risk:'Low',    color:'#2A6645', bg:'#E4F2EB', bd:'#88C4A5',
+    desc:'Hyderabad falls in Zone II — low seismic risk. Standard IS 1893 construction norms apply.'},
+  'chennai':    {zone:'III', factor:0.16, risk:'Moderate', color:'#A05A1A', bg:'#FBF0E2', bd:'#D9B87A',
+    desc:'Chennai is Zone III — moderate seismic risk. Buildings must comply with IS 1893 Zone III specifications. Verify structural certificate for older buildings (pre-2002).'},
+  'kolkata':    {zone:'III', factor:0.16, risk:'Moderate', color:'#A05A1A', bg:'#FBF0E2', bd:'#D9B87A',
+    desc:'Kolkata is Zone III — moderate seismic risk.'},
+  'mumbai':     {zone:'III', factor:0.16, risk:'Moderate', color:'#A05A1A', bg:'#FBF0E2', bd:'#D9B87A',
+    desc:'Mumbai is Zone III — moderate seismic risk. Lateral load resistance required per IS 1893. Old buildings (pre-1985) are particularly vulnerable — request structural audit for buildings over 20 years.'},
+  'pune':       {zone:'III', factor:0.16, risk:'Moderate', color:'#A05A1A', bg:'#FBF0E2', bd:'#D9B87A',
+    desc:'Pune is Zone III — moderate seismic risk. IS 1893 compliance required. Verify structural certificate for older buildings.'},
+  'delhi':      {zone:'IV', factor:0.24, risk:'High',   color:'#B93535', bg:'#FAEAEA', bd:'#DDAAAA',
+    desc:'Delhi is Zone IV — high seismic risk. Strict IS 1893 compliance mandatory. Banks should require structural certificate and earthquake-resistance confirmation for all loans.'},
+  'noida':      {zone:'IV', factor:0.24, risk:'High',   color:'#B93535', bg:'#FAEAEA', bd:'#DDAAAA', desc:'Zone IV — high risk.'},
+  'gurgaon':    {zone:'IV', factor:0.24, risk:'High',   color:'#B93535', bg:'#FAEAEA', bd:'#DDAAAA', desc:'Zone IV — high risk.'},
+  'dehradun':   {zone:'IV', factor:0.24, risk:'High',   color:'#B93535', bg:'#FAEAEA', bd:'#DDAAAA', desc:'Zone IV — high risk.'},
+  'ahmedabad':  {zone:'III', factor:0.16, risk:'Moderate', color:'#A05A1A', bg:'#FBF0E2', bd:'#D9B87A',
+    desc:'Ahmedabad is Zone III — moderate seismic risk. Post-2001 Bhuj earthquake, all new construction follows strict IS 1893 norms.'},
+  'surat':      {zone:'III', factor:0.16, risk:'Moderate', color:'#A05A1A', bg:'#FBF0E2', bd:'#D9B87A', desc:'Zone III — moderate risk.'},
+  'jaipur':     {zone:'II', factor:0.10, risk:'Low',    color:'#2A6645', bg:'#E4F2EB', bd:'#88C4A5', desc:'Zone II — low risk.'},
+  'lucknow':    {zone:'III', factor:0.16, risk:'Moderate', color:'#A05A1A', bg:'#FBF0E2', bd:'#D9B87A', desc:'Zone III — moderate risk.'},
+  'nagpur':     {zone:'II', factor:0.10, risk:'Low',    color:'#2A6645', bg:'#E4F2EB', bd:'#88C4A5', desc:'Zone II — low risk.'},
+  'default':    {zone:'II', factor:0.10, risk:'Low',    color:'#2A6645', bg:'#E4F2EB', bd:'#88C4A5',
+    desc:'Seismic zone data not available for this city. Verify with BIS IS 1893:2016 zone map.'},
+};
+
+function getSeismicZone(cityKey) {
+  return SEISMIC_ZONES[cityKey] || SEISMIC_ZONES['default'];
+}
+
+// ── ASI MONUMENT DATA (verified coordinates from ASI / Wikipedia) ──
+// Law: Ancient Monuments & Archaeological Sites & Remains Act 1958 (amended 2010)
+// ASI National Monuments: 100m PROHIBITED zone (no construction at all)
+//                         200m REGULATED zone (no construction without ASI permission)
+// MCGM Heritage Grade I:  100m regulated zone (no alteration without heritage committee)
+var ASI_MONUMENTS = [
+  // ── Mumbai City ──
+  {id:"N-MH-M5",  name:"Siva Bas Relief — Parel",           loc:"Parel",       city:"mumbai", lat:19.00057,  lon:72.84737,  type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"N-MH-M6",  name:"Sion Fort (Portuguese remains)",    loc:"Sion",        city:"mumbai", lat:19.046595, lon:72.867498, type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"MCGM-H1",  name:"Gateway of India",                  loc:"Apollo Bunder",city:"mumbai",lat:18.9220,   lon:72.8347,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H2",  name:"Chhatrapati Shivaji Terminus",      loc:"Fort",        city:"mumbai", lat:18.9399,   lon:72.8355,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H3",  name:"Rajabai Clock Tower",               loc:"Fort",        city:"mumbai", lat:18.9275,   lon:72.8310,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H4",  name:"Bombay High Court",                 loc:"Fort",        city:"mumbai", lat:18.9304,   lon:72.8330,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H5",  name:"Municipal Corporation Building",    loc:"Fort",        city:"mumbai", lat:18.9349,   lon:72.8350,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H7",  name:"Elphinstone College",               loc:"Fort",        city:"mumbai", lat:18.9270,   lon:72.8320,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H8",  name:"Flora Fountain — Hutatma Chowk",   loc:"Fort",        city:"mumbai", lat:18.9320,   lon:72.8340,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H10", name:"St Thomas Cathedral",               loc:"Fort",        city:"mumbai", lat:18.9335,   lon:72.8340,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H11", name:"Asiatic Society — Town Hall",       loc:"Fort",        city:"mumbai", lat:18.9328,   lon:72.8347,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H12", name:"Crawford Market",                   loc:"Masjid Bunder",city:"mumbai",lat:18.9475,   lon:72.8340,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H14", name:"CSMVS (Prince of Wales Museum)",    loc:"Colaba",      city:"mumbai", lat:18.9260,   lon:72.8320,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H16", name:"Afghan Church — St John the Evangelist", loc:"Colaba", city:"mumbai", lat:18.9159,   lon:72.8263,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H18", name:"Mahim Church",                      loc:"Mahim",       city:"mumbai", lat:19.0381,   lon:72.8441,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H19", name:"Haji Ali Dargah",                   loc:"Worli",       city:"mumbai", lat:18.9826,   lon:72.8086,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  // ── Mumbai Suburban (ASI) ──
+  {id:"N-MH-M7",  name:"Kanheri Buddhist Caves",            loc:"Borivali",    city:"mumbai", lat:19.20786,  lon:72.9048,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"N-MH-M8",  name:"Mahakali Caves (Kondivate)",        loc:"Andheri",     city:"mumbai", lat:19.13007,  lon:72.87317,  type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"N-MH-M9",  name:"Jogeshwari Caves",                  loc:"Jogeshwari",  city:"mumbai", lat:19.1391,   lon:72.8568,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"N-MH-M10", name:"Old Portuguese Churches — Borivali",loc:"Borivali",    city:"mumbai", lat:19.24462,  lon:72.85321,  type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"MCGM-H20", name:"Mount Mary Church",                 loc:"Bandra West", city:"mumbai", lat:19.0490,   lon:72.8194,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  {id:"MCGM-H21", name:"Bandra Fort (Castella de Aguada)",  loc:"Bandra West", city:"mumbai", lat:19.0348,   lon:72.8127,   type:"MCGM", prohibited_m:0,   regulated_m:100, color:"#5B3FA6"},
+  // ── Bengaluru ──
+  {id:"ASI-KA-B1",name:"Tipu Sultan's Summer Palace",       loc:"Chamrajpet",  city:"bengaluru",lat:12.9608,  lon:77.5741,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-KA-B2",name:"Hyder Ali's Tomb — Lal Bagh",      loc:"Lal Bagh",    city:"bengaluru",lat:12.9507,  lon:77.5848,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-KA-B3",name:"Bangalore Fort",                    loc:"KR Market",   city:"bengaluru",lat:12.9609,  lon:77.5744,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  // ── Hyderabad ──
+  {id:"ASI-TS-H1",name:"Golconda Fort",                     loc:"Ibrahim Bagh",city:"hyderabad",lat:17.3833,  lon:78.4011,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-TS-H2",name:"Qutb Shahi Tombs",                  loc:"Ibrahim Bagh",city:"hyderabad",lat:17.3993,  lon:78.3947,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-TS-H3",name:"Charminar",                         loc:"Old City",    city:"hyderabad",lat:17.3616,  lon:78.4747,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-TS-H4",name:"Mecca Masjid",                      loc:"Charminar",   city:"hyderabad",lat:17.3603,  lon:78.4739,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-TS-H5",name:"Paigah Tombs",                      loc:"Santosh Nagar",city:"hyderabad",lat:17.3569, lon:78.4981,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  // ── Chennai ──
+  {id:"ASI-TN-C1",name:"Fort St George",                    loc:"Fort Area",   city:"chennai",  lat:13.0812,  lon:80.2875,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-TN-C2",name:"St Mary's Church",                  loc:"Fort Area",   city:"chennai",  lat:13.0819,  lon:80.2884,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-TN-C3",name:"Chepauk Palace",                    loc:"Chepauk",     city:"chennai",  lat:13.0613,  lon:80.2799,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-TN-C4",name:"San Thome Cathedral",               loc:"San Thome",   city:"chennai",  lat:13.0339,  lon:80.2773,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-TN-C5",name:"Kapaleeshwarar Temple",             loc:"Mylapore",    city:"chennai",  lat:13.0336,  lon:80.2693,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  // ── Pune ──
+  {id:"ASI-MH-P1",name:"Shaniwar Wada",                     loc:"Shaniwar Peth",city:"pune",    lat:18.519075,lon:73.85545,  type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-MH-P2",name:"Aga Khan Palace",                   loc:"Kalyani Nagar",city:"pune",    lat:18.5523,  lon:73.9015,   type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+  {id:"ASI-MH-P3",name:"Pataleshwar Caves",                 loc:"JM Road",     city:"pune",     lat:18.52698, lon:73.84988,  type:"ASI",  prohibited_m:100, regulated_m:200, color:"#B93535"},
+];
+
+function getASIMonumentsForCity(cityKey) {
+  return ASI_MONUMENTS.filter(function(m){ return m.city === cityKey; });
+}
+
+function checkASIProximity(lat, lon, cityKey, radM) {
+  var monuments = getASIMonumentsForCity(cityKey);
+  var results = [];
+  monuments.forEach(function(m) {
+    var d = distM(lat, lon, m.lat, m.lon);
+    if (d <= radM) {
+      var zone = d <= m.prohibited_m ? 'prohibited' : d <= m.regulated_m ? 'regulated' : 'nearby';
+      results.push({monument:m, dist:d, zone:zone});
+    }
+  });
+  return results.sort(function(a,b){return a.dist-b.dist;});
+}
+
+
+// ── INDIA WRIS RIVER DATA ──
+// Source: India Water Resources Information System (CWC / Ministry of Jal Shakti)
+// Strategy: Try live WRIS ArcGIS MapServer (GET, CORS) → fallback to embedded river data
+var WRIS_BASE = 'https://arc.indiawris.gov.in/server/rest/services/SubInfoSysLCC/River_StreamOrder/MapServer';
+
+// Major rivers near each city — embedded fallback (verified from WRIS data)
+var CITY_RIVERS = {
+  mumbai: [
+    {name:'Ulhas River',        lat:19.2167, lon:73.0833, order:6, risk:'medium'},
+    {name:'Thane Creek',        lat:19.1000, lon:72.9500, order:6, risk:'medium'},
+    {name:'Mithi River',        lat:19.0600, lon:72.8500, order:4, risk:'high',
+     note:'Flood-prone — 2005 Mumbai floods traced to Mithi overflow'},
+    {name:'Dahisar River',      lat:19.2500, lon:72.8500, order:4, risk:'medium'},
+    {name:'Poisar River',       lat:19.1700, lon:72.8400, order:3, risk:'medium'},
+    {name:'Oshiwara River',     lat:19.1400, lon:72.8300, order:3, risk:'medium'},
+    {name:'Mahim Creek',        lat:19.0400, lon:72.8400, order:4, risk:'medium'},
+  ],
+  bengaluru: [
+    {name:'Arkavathi River',    lat:12.9500, lon:77.4000, order:5, risk:'low'},
+    {name:'Vrishabhavathi River',lat:12.9000,lon:77.5200, order:4, risk:'medium',
+     note:'Highly polluted — industrial effluent risk for adjacent properties'},
+    {name:'Koramangala-Challaghatta Valley',lat:12.9200,lon:77.6100,order:4,risk:'medium'},
+    {name:'Hebbal Lake Drain',  lat:13.0400, lon:77.5900, order:3, risk:'low'},
+  ],
+  hyderabad: [
+    {name:'Musi River',         lat:17.3800, lon:78.4800, order:6, risk:'high',
+     note:'Musi floods periodically — large flood plain through old city'},
+    {name:'Esa River',          lat:17.4500, lon:78.3500, order:4, risk:'medium'},
+    {name:'Nakkavagu Stream',   lat:17.4000, lon:78.3800, order:3, risk:'medium'},
+    {name:'Hussain Sagar Lake', lat:17.4239, lon:78.4738, order:5, risk:'medium'},
+  ],
+  chennai: [
+    {name:'Adyar River',        lat:13.0100, lon:80.2600, order:5, risk:'high',
+     note:'Adyar flooding was primary cause of 2015 Chennai disaster'},
+    {name:'Cooum River',        lat:13.0800, lon:80.2800, order:5, risk:'high',
+     note:'Highly flood-prone and polluted through city centre'},
+    {name:'Kosasthalaiyar River',lat:13.2000,lon:80.2200, order:5, risk:'medium'},
+    {name:'Buckingham Canal',   lat:13.1000, lon:80.2900, order:4, risk:'medium'},
+    {name:'Ennore Creek',       lat:13.2300, lon:80.3100, order:4, risk:'medium'},
+  ],
+  pune: [
+    {name:'Mula River',         lat:18.5200, lon:73.8200, order:6, risk:'high',
+     note:'PMC blue/red flood lines demarcated along Mula — no construction within blue line'},
+    {name:'Mutha River',        lat:18.5000, lon:73.8500, order:6, risk:'high',
+     note:'Combined Mula-Mutha prone to flash flooding during heavy rain'},
+    {name:'Pavana River',       lat:18.6500, lon:73.7500, order:5, risk:'medium'},
+    {name:'Indrayani River',    lat:18.7000, lon:73.7200, order:5, risk:'medium'},
+  ],
+};
+
+async function fetchWRISRivers(lat, lon, radM, cityKey) {
+  // Try live WRIS API first (GET request — avoids preflight CORS)
+  // River layer = 4, Waterbody layer = 5 in River_StreamOrder MapServer
+  // Convert point to Web Mercator for WRIS (SR 102100)
+  var lonRad = lon * Math.PI / 180;
+  var latRad = lat * Math.PI / 180;
+  var wmX = 6378137.0 * lonRad;
+  var wmY = 6378137.0 * Math.log(Math.tan(Math.PI/4 + latRad/2));
+  var radWM = radM; // approximate — 1 degree ≈ 111km, 1m ≈ 1m in Web Mercator at equator
+
+  var geom = JSON.stringify({
+    xmin: wmX-radWM, ymin: wmY-radWM, xmax: wmX+radWM, ymax: wmY+radWM,
+    spatialReference: {wkid:102100}
+  });
+  var url = WRIS_BASE + '/4/query?geometry=' + encodeURIComponent(geom) +
+    '&geometryType=esriGeometryEnvelope&inSR=102100&spatialRel=esriSpatialRelIntersects' +
+    '&outFields=RIVERID,NAME,ORDER_,SYSTEM&returnGeometry=false&f=json';
+  try {
+    var ctrl = new AbortController();
+    var tid = setTimeout(function(){ctrl.abort();}, 6000);
+    var r = await fetch(url, {method:'GET', mode:'cors', signal:ctrl.signal});
+    clearTimeout(tid);
+    if (r.ok) {
+      var j = await r.json();
+      if (j && j.features && j.features.length > 0) {
+        return {source:'live', rivers: j.features.map(function(f) {
+          var p = f.attributes || {};
+          return {name: p.NAME||p.RIVERID||'River', order: p.ORDER_||0,
+                  system: p.SYSTEM||'', risk: (p.ORDER_||0)>=6?'high':(p.ORDER_||0)>=4?'medium':'low',
+                  note:''};
+        })};
+      }
+    }
+  } catch(e) { /* fallback */ }
+
+  // Fallback: filter embedded city rivers by proximity
+  var cityRivers = CITY_RIVERS[cityKey] || [];
+  var nearby = cityRivers.filter(function(rv) {
+    return distM(lat, lon, rv.lat, rv.lon) <= (radM + 3000); // +3km buffer for river width
+  }).map(function(rv) {
+    return Object.assign({}, rv, {dist: distM(lat, lon, rv.lat, rv.lon)});
+  }).sort(function(a,b){return a.dist-b.dist;});
+  return {source:'embedded', rivers: nearby};
+}
+
+function riverRiskToSev(risk) {
+  return risk==='high'?'red':risk==='medium'?'amber':'green';
+}
+
+// ── RERA CONFIG — all 5 cities ──
+var RERA_CONFIG = {
+  mumbai: {
+    state: 'Maharashtra',
+    authority: 'MahaRERA',
+    portal: 'https://maharera.maharashtra.gov.in',
+    searchUrl: 'https://maharera.maharashtra.gov.in/projects-search-result',
+    format: 'P52100XXXXXXX',
+    stateCode: 'P52100',
+    active: true,
+    note: 'Maharashtra has the most mature RERA system in India. MahaRERA allows search by project name, promoter, and district. Map-based search available.'
+  },
+  bengaluru: {
+    state: 'Karnataka',
+    authority: 'K-RERA',
+    portal: 'https://rera.karnataka.gov.in',
+    searchUrl: 'https://rera.karnataka.gov.in/viewAllProjects',
+    format: 'PRM/KA/RERA/...',
+    stateCode: 'PRM/KA',
+    active: true,
+    note: 'K-RERA portal allows search by project name, promoter, and taluk. Karnataka has strong RERA compliance for Bengaluru projects.'
+  },
+  hyderabad: {
+    state: 'Telangana',
+    authority: 'TG-RERA',
+    portal: 'https://rera.telangana.gov.in',
+    searchUrl: 'https://rera.telangana.gov.in/registered-projects',
+    format: 'P02400XXXXXXX',
+    stateCode: 'P02400',
+    active: true,
+    note: 'TG-RERA portal allows search by project name, promoter, and mandal. Map-based project search available.'
+  },
+  chennai: {
+    state: 'Tamil Nadu',
+    authority: 'TN-RERA',
+    portal: 'https://rera.tn.gov.in',
+    searchUrl: 'https://rera.tn.gov.in/rera/approvedprojects',
+    format: 'TN/01/Building/...',
+    stateCode: 'TN/01',
+    active: true,
+    note: 'Tamil Nadu RERA portal. Search by project name or registration number. TN-RERA covers Chennai Metropolitan Area.'
+  },
+  pune: {
+    state: 'Maharashtra',
+    authority: 'MahaRERA',
+    portal: 'https://maharera.maharashtra.gov.in',
+    searchUrl: 'https://maharera.maharashtra.gov.in/projects-search-result',
+    format: 'P52100XXXXXXX',
+    stateCode: 'P52100',
+    active: true,
+    note: 'Pune falls under MahaRERA (same as Mumbai). Search by project name or Pune district filter.'
+  },
+};
+
+function buildReraTabHTML(cityKey, addr, pin, loc) {
+  var rc = RERA_CONFIG[cityKey] || RERA_CONFIG['mumbai'];
+  var searchQ = encodeURIComponent(addr || '');
+  var pinQ = pin ? encodeURIComponent(pin) : '';
+
+  // Build portal links
+  var links = [
+    {label:'Search by project name / area', url: rc.searchUrl},
+    {label:'Search by PIN code '+(pin?'('+pin+')':''), url: rc.portal},
+    {label:'Check lapsed registrations', url: rc.portal + (cityKey==='mumbai'||cityKey==='pune' ? '/lapsedProjects' : '')},
+  ];
+
+  var html = '';
+  // Authority card
+  html += '<div class="zcard" style="margin-bottom:.75rem;border-left:3px solid #1A4E8C">';
+  html += '<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9BAABB;padding:9px 13px;background:#F7F5F0;border-bottom:1px solid #EDEAE3">RERA AUTHORITY — '+rc.state.toUpperCase()+'</div>';
+  html += '<div class="zrow"><span class="zkey">Authority</span><span class="zval">'+rc.authority+'</span></div>';
+  html += '<div class="zrow"><span class="zkey">State</span><span class="zval">'+rc.state+'</span></div>';
+  html += '<div class="zrow"><span class="zkey">Reg. number format</span><span class="zval" style="font-size:11px;font-family:monospace">'+rc.format+'</span></div>';
+  html += '<div class="zrow"><span class="zkey">Portal</span><span class="zval"><a href="'+rc.portal+'" target="_blank" style="color:#1A4E8C">'+rc.authority+' portal</a></span></div>';
+  html += '</div>';
+
+  // Note
+  html += '<div class="cnote" style="margin-bottom:1rem">'+rc.note+'</div>';
+
+  // Quick-launch buttons
+  html += '<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9BAABB;margin-bottom:10px">VERIFY ON '+rc.authority.toUpperCase()+' PORTAL</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem">';
+  links.forEach(function(lnk) {
+    if (!lnk.url) return;
+    html += '<a href="'+lnk.url+'" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 13px;background:#fff;border:0.5px solid #E2DED6;border-radius:6px;text-decoration:none;font-size:13px;color:#0E1C2F">';
+    html += '<i class="ti ti-external-link" style="font-size:14px;color:#1A4E8C;flex-shrink:0"></i>';
+    html += '<span>'+lnk.label+'</span>';
+    html += '</a>';
+  });
+  html += '</div>';
+
+  // Checklist
+  html += '<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9BAABB;margin-bottom:10px">RERA LOAN OFFICER CHECKLIST</div>';
+  html += '<div class="checklist">';
+  var checks = [
+    'Verify RERA registration number is valid and not lapsed',
+    'Confirm project completion certificate or OC has been issued',
+    'Check quarterly progress reports (QPRs) are up to date',
+    'Verify no pending complaints or enforcement orders against promoter',
+    'Confirm escrow account details and fund utilisation disclosed',
+    'Check if project is within approved land use zone (from DP scan above)',
+    'For resale: confirm original buyer and chain of title is RERA-compliant',
+  ];
+  checks.forEach(function(c) {
+    html += '<div class="crow"><i class="ti ti-checkbox" style="color:#1A4E8C"></i><span>'+c+'</span></div>';
+  });
+  html += '</div>';
+
+  // Key risk flags
+  html += '<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9BAABB;margin:1rem 0 10px">COMMON RERA RED FLAGS FOR BANKS</div>';
+  html += '<div class="zcard">';
+  var redFlags = [
+    {icon:'ti-alert-triangle', color:'#B93535', text:'Lapsed RERA registration — developer cannot legally sell; mortgage becomes legally vulnerable'},
+    {icon:'ti-alert-triangle', color:'#B93535', text:'Project completion delayed >2 years beyond RERA deadline — distress signal'},
+    {icon:'ti-alert-triangle', color:'#A05A1A', text:'Multiple consumer complaints or enforcement orders on RERA portal'},
+    {icon:'ti-alert-triangle', color:'#A05A1A', text:'QPRs not updated for >2 quarters — non-compliance indicator'},
+    {icon:'ti-circle-check',   color:'#2A6645', text:'Valid registration, OC obtained, no pending complaints — green light'},
+  ];
+  redFlags.forEach(function(f) {
+    html += '<div class="zrow" style="gap:10px"><i class="ti '+f.icon+'" style="color:'+f.color+';font-size:16px;flex-shrink:0"></i><span style="font-size:12px;color:#2D4059">'+f.text+'</span></div>';
+  });
+  html += '</div>';
+  html += '<div class="cnote" style="margin-top:.75rem"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-2px"></i> RERA data cannot be auto-fetched due to CSRF token protection on all state portals. Use the quick-launch links above to verify on the official portal. For automated RERA checks at scale, integrate a licensed RERA data provider (e.g. Surepass, PropEquity API).</div>';
+  return html;
+}
+
+// ── CENSUS 2011 DATA (all 24 BMC wards, compiled from GoI Census 2011) ──
+const CENSUS = [
+  {ward:'A',  name:'Colaba-Fort',      areas:'Colaba, Cuffe Parade, Nariman Point, Fort',        pop:280000, hindu:60, muslim:15, buddhist:4,  christian:12, jain:6,  other:3, slum:12, literacy:92, sex_ratio:868},
+  {ward:'B',  name:'Mazgaon',          areas:'Mazgaon, Null Bazaar, Dongri',                      pop:330000, hindu:38, muslim:47, buddhist:5,  christian:6,  jain:2,  other:2, slum:28, literacy:83, sex_ratio:842},
+  {ward:'C',  name:'Byculla',          areas:'Byculla, Nagpada, Kamathipura',                     pop:435000, hindu:42, muslim:40, buddhist:7,  christian:6,  jain:3,  other:2, slum:35, literacy:82, sex_ratio:851},
+  {ward:'D',  name:'Worli-Prabhadevi', areas:'Worli, Prabhadevi, Dadar West, Mahim',              pop:480000, hindu:62, muslim:20, buddhist:9,  christian:5,  jain:2,  other:2, slum:30, literacy:86, sex_ratio:858},
+  {ward:'E',  name:'Byculla East',     areas:'Byculla East, Lalbaug, Parel',                      pop:510000, hindu:55, muslim:25, buddhist:12, christian:4,  jain:2,  other:2, slum:42, literacy:84, sex_ratio:845},
+  {ward:'F/N',name:'Sion-Dharavi',     areas:'Sion, Dharavi, Matunga',                            pop:620000, hindu:55, muslim:30, buddhist:9,  christian:4,  jain:1,  other:1, slum:62, literacy:80, sex_ratio:832},
+  {ward:'F/S',name:'Dadar-Mahim',      areas:'Dadar East, Matunga East, Wadala',                  pop:510000, hindu:68, muslim:14, buddhist:11, christian:4,  jain:2,  other:1, slum:28, literacy:88, sex_ratio:855},
+  {ward:'G/N',name:'Dharavi North',    areas:'Dharavi (North), Chunabhatti, Chembur West',        pop:490000, hindu:56, muslim:28, buddhist:10, christian:4,  jain:1,  other:1, slum:58, literacy:79, sex_ratio:829},
+  {ward:'G/S',name:'Bandra West',      areas:'Bandra West, Khar West, Santa Cruz West',           pop:360000, hindu:52, muslim:18, buddhist:5,  christian:20, jain:3,  other:2, slum:18, literacy:91, sex_ratio:880},
+  {ward:'H/E',name:'Bandra East',      areas:'Bandra East, Kurla (part), BKC',                    pop:640000, hindu:48, muslim:38, buddhist:7,  christian:5,  jain:1,  other:1, slum:55, literacy:78, sex_ratio:825},
+  {ward:'H/W',name:'Andheri West',     areas:'Andheri West, Juhu, Vile Parle West',               pop:660000, hindu:63, muslim:16, buddhist:8,  christian:9,  jain:2,  other:2, slum:22, literacy:90, sex_ratio:875},
+  {ward:'K/E',name:'Andheri East',     areas:'Andheri East, Jogeshwari East, Marol, Sahar',       pop:720000, hindu:60, muslim:22, buddhist:10, christian:5,  jain:2,  other:1, slum:35, literacy:85, sex_ratio:848},
+  {ward:'K/W',name:'Vile Parle West',  areas:'Vile Parle West, Juhu, Oshiwara, Jogeshwari W',    pop:540000, hindu:65, muslim:12, buddhist:9,  christian:8,  jain:4,  other:2, slum:16, literacy:92, sex_ratio:882},
+  {ward:'L',  name:'Kurla',            areas:'Kurla East, Kurla West, Ghatkopar (part)',           pop:870000, hindu:50, muslim:38, buddhist:7,  christian:3,  jain:1,  other:1, slum:72, literacy:76, sex_ratio:818},
+  {ward:'M/E',name:'Chembur-Govandi',  areas:'Chembur East, Govandi, Shivaji Nagar, Mankhurd',    pop:740000, hindu:40, muslim:48, buddhist:7,  christian:3,  jain:1,  other:1, slum:82, literacy:71, sex_ratio:810},
+  {ward:'M/W',name:'Chembur West',     areas:'Chembur West, Ghatkopar West, Vikhroli',            pop:680000, hindu:62, muslim:18, buddhist:12, christian:5,  jain:2,  other:1, slum:38, literacy:84, sex_ratio:843},
+  {ward:'N',  name:'Ghatkopar',        areas:'Ghatkopar East & West, Vikhroli',                   pop:780000, hindu:66, muslim:15, buddhist:12, christian:4,  jain:2,  other:1, slum:40, literacy:83, sex_ratio:836},
+  {ward:'P/N',name:'Goregaon North',   areas:'Goregaon North, Dindoshi, Aarey',                   pop:490000, hindu:67, muslim:16, buddhist:10, christian:5,  jain:1,  other:1, slum:58, literacy:82, sex_ratio:839},
+  {ward:'P/S',name:'Goregaon South',   areas:'Goregaon South, Ram Mandir, Bangur Nagar',          pop:550000, hindu:64, muslim:18, buddhist:11, christian:4,  jain:2,  other:1, slum:42, literacy:83, sex_ratio:841},
+  {ward:'R/C',name:'Borivali Central', areas:'Borivali East, Thakur Complex, Sher-e-Punjab',      pop:580000, hindu:70, muslim:12, buddhist:9,  christian:5,  jain:3,  other:1, slum:25, literacy:88, sex_ratio:863},
+  {ward:'R/N',name:'Dahisar',          areas:'Dahisar, Kandivali North, Charkop North',           pop:510000, hindu:68, muslim:14, buddhist:10, christian:5,  jain:2,  other:1, slum:30, literacy:87, sex_ratio:862},
+  {ward:'R/S',name:'Kandivali',        areas:'Kandivali East & West, Charkop',                    pop:620000, hindu:67, muslim:14, buddhist:10, christian:5,  jain:3,  other:1, slum:32, literacy:87, sex_ratio:861},
+  {ward:'S',  name:'Bhandup-Mulund',   areas:'Bhandup, Mulund, Nahur',                            pop:590000, hindu:69, muslim:13, buddhist:11, christian:4,  jain:2,  other:1, slum:35, literacy:88, sex_ratio:858},
+  {ward:'T',  name:'Mulund',           areas:'Mulund East & West, Nahur',                         pop:470000, hindu:71, muslim:11, buddhist:10, christian:5,  jain:2,  other:1, slum:22, literacy:90, sex_ratio:872},
+];
+const WARD_KW = {
+  'A':['colaba','cuffe','nariman','churchgate','fort','ballard','marine'],
+  'B':['mazgaon','dongri','null bazaar','bhendi','mandvi','carnac'],
+  'C':['byculla','nagpada','kamathipura','charni','grant road'],
+  'D':['worli','prabhadevi','dadar west','mahim','shivaji park'],
+  'E':['lalbaug','parel','sewri','cotton green'],
+  'F/N':['sion','dharavi','matunga','antop hill','king circle'],
+  'F/S':['dadar east','wadala','chembur west','matunga east'],
+  'G/N':['chunabhatti','dharavi north'],
+  'G/S':['bandra west','khar','santa cruz west','linking road','turner'],
+  'H/E':['bandra east','bkc','bandra kurla','vakola','kalina'],
+  'H/W':['andheri west','juhu','vile parle west','lokhandwala','versova'],
+  'K/E':['andheri east','jogeshwari east','marol','sahar','saki naka','powai'],
+  'K/W':['vile parle west','oshiwara','jogeshwari west'],
+  'L':['kurla east','kurla west','nehru nagar'],
+  'M/E':['govandi','chembur east','shivaji nagar','mankhurd','trombay','deonar'],
+  'M/W':['chembur','ghatkopar','vikhroli','tilaknagar'],
+  'N':['ghatkopar east','ghatkopar west','kanjurmarg'],
+  'P/N':['goregaon north','dindoshi','aarey','film city'],
+  'P/S':['goregaon','bangur nagar','ram mandir'],
+  'R/C':['borivali east','thakur','poisar','kandivali east'],
+  'R/N':['dahisar','charkop north','malad east'],
+  'R/S':['kandivali west','charkop','malad west'],
+  'S':['bhandup','mulund west','nahur'],
+  'T':['mulund east','mulund'],
+};
+function guessWard(display, lat) {
+  const t = display.toLowerCase();
+  let best = null, bestScore = 0;
+  for (const [w, kws] of Object.entries(WARD_KW)) {
+    const score = kws.filter(k => t.includes(k)).length;
+    if (score > bestScore) { bestScore = score; best = w; }
+  }
+  if (!best) {
+    if (lat < 18.94) best='A'; else if (lat < 18.97) best='C';
+    else if (lat < 19.00) best='G/S'; else if (lat < 19.04) best='H/E';
+    else if (lat < 19.08) best='K/E'; else if (lat < 19.12) best='L';
+    else if (lat < 19.16) best='N'; else if (lat < 19.20) best='P/S';
+    else if (lat < 19.24) best='R/C'; else best='R/N';
+  }
+  return CENSUS.find(c => c.ward === best) || CENSUS[0];
+}
+
+// ── CONFIG ──
+const ARCGIS = 'https://services8.arcgis.com/r6MmJtuWAzMawmJ8/ArcGIS/rest/services';
+const NOM = 'https://nominatim.openstreetmap.org/search';
+const OVERPASS_ENDPOINTS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter'
+];
+const REL_COLORS = {Hindu:'#E8722A',Muslim:'#2C5FA6',Buddhist:'#9B59B6',Christian:'#27AE60',Jain:'#C49A1A',Other:'#7F8C8D'};
+const SC = {
+  red:  {bg:'#FAEAEA',color:'#B93535',border:'#DDAAAA',label:'High Risk', mc:'#B93535'},
+  amber:{bg:'#FBF0E2',color:'#A05A1A',border:'#D9B87A',label:'Medium Risk',mc:'#A05A1A'},
+  green:{bg:'#E4F2EB',color:'#2A6645',border:'#88C4A5',label:'Positive',   mc:'#2A6645'},
+};
+let leafMap = null;
+
+// ── HELPERS ──
+function setAddr(v) { document.getElementById('addr').value = v; }
+function setStat(msg, spin) {
+  document.getElementById('status').innerHTML = (spin ? '<span class="spinner"></span>' : '') + (msg || '');
+}
+function setChip(id, state) {
+  var el = document.getElementById('lp-' + id);
+  if (el) el.className = 'lchip ' + state;
+}
+function el(id) { return document.getElementById(id); }
+
+async function geocode(addr, pin) {
+  var pinOk = pin && /^4\d{5}$/.test(pin);
+  var city = CITIES[currentCity] || CITIES.mumbai;
+  var q = addr.trim() + (pinOk ? ', ' + pin : '') + ', ' + city.geocodeSuffix;
+  var r = await fetch(NOM + '?q=' + encodeURIComponent(q) + '&format=json&limit=1&countrycodes=in', {headers:{'Accept-Language':'en'}});
+  var d = await r.json();
+  if (!d.length && pinOk) {
+    r = await fetch(NOM + '?q=' + encodeURIComponent(pin + ', ' + city.name + ', India') + '&format=json&limit=1&countrycodes=in', {headers:{'Accept-Language':'en'}});
+    d = await r.json();
+  }
+  if (!d.length) throw new Error('Address not found. Try adding area name or check PIN code.');
+  return {lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon), display: d[0].display_name};
+}
+
+function arcQ(svc, layer, lat, lon, rad, fields) {
+  var geom = JSON.stringify({x:lon, y:lat, spatialReference:{wkid:4326}});
+  var p = new URLSearchParams({
+    geometry:geom, geometryType:'esriGeometryPoint', inSR:'4326',
+    spatialRel:'esriSpatialRelIntersects', distance:rad, units:'esriSRUnit_Meter',
+    outFields:fields, returnGeometry:'true', outSR:'4326',
+    f:'geojson', resultRecordCount:100, where:'1=1'
+  });
+  return fetch(ARCGIS + '/' + svc + '/FeatureServer/' + layer + '/query?' + p, {mode:'cors'})
+    .then(function(r) { return r.ok ? r.json() : {features:[]}; })
+    .catch(function() { return {features:[]}; });
+}
+
+async function fetchHabitat(lat, lon, radM) {
+  // FAST strategy: query nodes first (instant), then way centroids only.
+  // Nodes cover most Mumbai POIs tagged as points.
+  // We limit to 80 results and skip relations entirely for speed.
+  var q = '[out:json][timeout:15];(' +
+    'node["amenity"="place_of_worship"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    'node["amenity"="hospital"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    'node["amenity"="school"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    'node["amenity"="college"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    'node["amenity"="clinic"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    'node["amenity"="bank"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    'node["shop"="supermarket"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    'node["landuse"="industrial"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    // ways give building centroids for mosques/hospitals mapped as polygons
+    'way["amenity"="place_of_worship"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    'way["amenity"="hospital"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    'way["amenity"="school"](around:' + radM + ',' + lat + ',' + lon + ');' +
+    ');out center tags 80;';
+
+  var endpoints = [
+    'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(q),
+    'https://overpass.kumi.systems/api/interpreter?data=' + encodeURIComponent(q),
+    'https://maps.mail.ru/osm/tools/overpass/api/interpreter?data=' + encodeURIComponent(q),
+  ];
+  for (var i = 0; i < endpoints.length; i++) {
+    try {
+      var ctrl = new AbortController();
+      var tid = setTimeout(function(){ctrl.abort();}, 8000); // 8s hard timeout per mirror
+      var r = await fetch(endpoints[i], {method:'GET', mode:'cors', signal:ctrl.signal});
+      clearTimeout(tid);
+      if (!r.ok) continue;
+      var j = await r.json();
+      if (j && Array.isArray(j.elements)) return j;
+    } catch(e) { continue; }
+  }
+  return {elements:[]};
+}
+
+function centroid(geom) {
+  if (!geom) return null;
+  if (geom.type === 'Point') return {lat:geom.coordinates[1], lon:geom.coordinates[0]};
+  var c = geom.type === 'Polygon' ? geom.coordinates[0] : geom.type === 'MultiPolygon' ? geom.coordinates[0][0] : [];
+  if (!c.length) return null;
+  return {lat: c.reduce(function(s,x){return s+x[1];},0)/c.length, lon: c.reduce(function(s,x){return s+x[0];},0)/c.length};
+}
+function distM(a,b,c,d) {
+  var R=6371000, dL=(c-a)*Math.PI/180, dG=(d-b)*Math.PI/180;
+  var x=Math.sin(dL/2)*Math.sin(dL/2)+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dG/2)*Math.sin(dG/2);
+  return Math.round(R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)));
+}
+function getSev(t) {
+  if (!t) return 'amber';
+  var l = t.toLowerCase();
+  var reds = ['burial','cemetery','cremator','solid waste','garbage','dumping','swm','flood','crz','hazardous','high tension','electric sub','nala'];
+  var greens = ['garden','park','playground','recreation','open space','metro','station','hospital','dispensary','school','college'];
+  if (reds.some(function(k){return l.includes(k);})) return 'red';
+  if (greens.some(function(k){return l.includes(k);})) return 'green';
+  return 'amber';
+}
+function explain(t) {
+  var l = (t||'').toLowerCase();
+  if (l.includes('burial')||l.includes('cemetery')||l.includes('cremator')) return 'Reserved for burial/cremation. Severe stigma and value depreciation — loan sanction not recommended without full legal clearance.';
+  if (l.includes('solid waste')||l.includes('dumping')||l.includes('swm')||l.includes('garbage')) return 'Solid waste/dumping reservation. Environmental hazard and long-term collateral risk.';
+  if (l.includes('nala')||l.includes('drain')) return 'Drainage/nala reservation. Flood risk and mandatory setback obligations.';
+  if (l.includes('electric')||l.includes('tension')||l.includes('sub station')) return 'Electrical infrastructure corridor. Building and safety restrictions apply.';
+  if (l.includes('road')||l.includes('widening')) return 'DP road or widening reservation. Setback and acquisition risk — verify plot boundaries.';
+  if (l.includes('garden')||l.includes('park')||l.includes('playground')||l.includes('open space')) return 'Public open space reservation — neighbourhood positive. Verify no overlap with collateral plot.';
+  if (l.includes('metro')||l.includes('station')) return 'Metro/transit proximity — strong positive for connectivity and long-term value.';
+  if (l.includes('mangrove')||l.includes('no development')||l.includes('ndz')) return 'No Development Zone buffer. Construction restrictions — verify boundary clearance.';
+  return 'DP 2034 reservation for public purpose. Verify whether this affects the collateral plot or access.';
+}
+function scoreFlags(flags) {
+  var s = 100;
+  flags.forEach(function(f) { if(f.sev==='red') s-=20; else if(f.sev==='amber') s-=7; else s+=2; });
+  return Math.max(5, Math.min(100, Math.round(s)));
+}
+function getVerdict(sc) {
+  if (sc >= 75) return {label:'LOW RISK',title:'Proceed — standard due diligence sufficient',color:'#2A6645',bg:'#E4F2EB',border:'#88C4A5',icon:'shield-check'};
+  if (sc >= 50) return {label:'MEDIUM RISK',title:'Proceed with enhanced due diligence',color:'#A05A1A',bg:'#FBF0E2',border:'#D9B87A',icon:'alert-triangle'};
+  return {label:'HIGH RISK',title:'Legal and site review required before sanction',color:'#B93535',bg:'#FAEAEA',border:'#DDAAAA',icon:'shield-x'};
+}
+
+function initMap(lat, lon) {
+  el('mmt').style.display = 'none';
+  el('mleg').classList.add('show');
+  if (leafMap) { leafMap.remove(); leafMap = null; }
+  leafMap = L.map('map', {zoomControl:true, scrollWheelZoom:false}).setView([lat, lon], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'OSM', maxZoom:19}).addTo(leafMap);
+  return leafMap;
+}
+function addPoly(map, feat, color, popup) {
+  if (!feat || !feat.geometry) return;
+  try { L.geoJSON(feat, {style:{color:color, fillColor:color, fillOpacity:0.22, weight:1.5}}).addTo(map).bindPopup(popup); } catch(e) {}
+}
+
+// ── RENDER HELPERS ──
+function renderFlag(f) {
+  var s = SC[f.sev];
+  var meta = '';
+  if (f.dist != null) meta += '<span><i class="ti ti-map-pin" style="font-size:11px;vertical-align:-1px"></i> ~' + f.dist + 'm</span>';
+  if (f.ward) meta += '<span>Ward ' + f.ward + '</span>';
+  if (f.tag)  meta += '<span class="ftag">' + f.tag + '</span>';
+  if (f.extra) meta += f.extra;
+  return '<div class="fi">' +
+    '<span class="fsev" style="background:' + s.bg + ';color:' + s.color + ';border-color:' + s.border + '">' + s.label + '</span>' +
+    '<div class="fb"><div class="ftitle">' + f.title + '</div><div class="fdesc">' + f.ex + '</div>' +
+    '<div class="fmeta">' + meta + '</div></div></div>';
+}
+
+function renderCensus(w) {
+  var rels = [
+    {name:'Hindu',    pct:w.hindu,    color:REL_COLORS.Hindu},
+    {name:'Muslim',   pct:w.muslim,   color:REL_COLORS.Muslim},
+    {name:'Buddhist', pct:w.buddhist, color:REL_COLORS.Buddhist},
+    {name:'Christian',pct:w.christian,color:REL_COLORS.Christian},
+    {name:'Jain',     pct:w.jain,     color:REL_COLORS.Jain},
+    {name:'Other',    pct:w.other,    color:REL_COLORS.Other},
+  ].sort(function(a,b){return b.pct-a.pct;});
+  var dom = rels[0];
+  var circ = 2*Math.PI*30;
+  var off = 0;
+  var segs = rels.map(function(r) {
+    var dash = (r.pct/100)*circ, gap = circ-dash;
+    var seg = '<circle cx="36" cy="36" r="30" fill="none" stroke="' + r.color + '" stroke-width="12" stroke-dasharray="' + dash + ' ' + gap + '" stroke-dashoffset="' + (-off) + '"/>';
+    off += dash;
+    return seg;
+  }).join('');
+  var domRows = rels.map(function(r) {
+    return '<div class="domrow"><span><span class="domdot" style="background:' + r.color + '"></span>' + r.name + '</span>' +
+      '<div style="display:flex;align-items:center;gap:8px"><div style="width:60px;height:4px;background:#EDEAE3;border-radius:99px;overflow:hidden"><div style="width:' + r.pct + '%;height:100%;background:' + r.color + ';border-radius:99px"></div></div>' +
+      '<span style="font-weight:500;width:28px;text-align:right">' + r.pct + '%</span></div></div>';
+  }).join('');
+  var slumColor = w.slum>=55 ? '#B93535' : w.slum>=35 ? '#A05A1A' : '#2A6645';
+  var riskMsg = '';
+  if (w.slum>=55 || w.muslim>=35 || w.literacy<78) {
+    riskMsg = '<div class="crisk"><i class="ti ti-alert-triangle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i><div><strong>Loan risk indicators:</strong>' +
+      (w.slum>=55 ? ' High slum density (' + w.slum + '%) — verify formal title documentation carefully.' : '') +
+      (w.muslim>=35 ? ' Muslim community ' + w.muslim + '% — check Waqf Board land encumbrances.' : '') +
+      (w.literacy<78 ? ' Below-average literacy (' + w.literacy + '%) — documentation complexity risk.' : '') +
+      '</div></div>';
+  }
+  return '<div class="cgrid">' +
+    '<div class="ccard"><div class="cclabel">Ward Population 2011</div><div class="cctitle">' + Math.round(w.pop/1000) + 'K</div><div class="ccsub">Ward ' + w.ward + ' — ' + w.name + '</div><div style="margin-top:.75rem;font-size:12px;color:#5C7089">' + w.areas + '</div></div>' +
+    '<div class="ccard"><div class="cclabel">Demographics</div>' +
+    '<div class="brow"><div class="blabel">Slum pop.</div><div class="btrack"><div class="bfill" style="width:' + w.slum + '%;background:' + slumColor + '"></div></div><div class="bval" style="color:' + slumColor + '">' + w.slum + '%</div></div>' +
+    '<div class="brow"><div class="blabel">Literacy</div><div class="btrack"><div class="bfill" style="width:' + w.literacy + '%;background:#1A4E8C"></div></div><div class="bval">' + w.literacy + '%</div></div>' +
+    '<div class="brow"><div class="blabel">Sex ratio</div><div class="btrack"><div class="bfill" style="width:' + (w.sex_ratio/10) + '%;background:#1A6E6E"></div></div><div class="bval">' + w.sex_ratio + '</div></div>' +
+    '</div></div>' +
+    riskMsg +
+    '<div class="donut-wrap"><div class="donut-svg-wrap"><svg viewBox="0 0 72 72" width="72" height="72">' + segs + '</svg><div class="donut-center"><div class="donut-pct">' + dom.pct + '%</div><div class="donut-name">' + dom.name + '</div></div></div><div class="dom-legend">' + domRows + '</div></div>' +
+    '<div class="cnote"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-2px"></i> Census of India 2011 (GoI), ward-level aggregates. Population figures are 2011 base — actual 2026 estimates ~25% higher.</div>';
+}
+
+function renderHabitat(elements, lat, lon) {
+  var POI = {
+    'place_of_worship':{icon:'ti-building-church',color:'#5B3FA6',label:'Place of worship'},
+    'mosque':          {icon:'ti-moon-stars',      color:'#2C5FA6',label:'Mosque'},
+    'temple':          {icon:'ti-sun',             color:'#E8722A',label:'Temple'},
+    'church':          {icon:'ti-cross',           color:'#27AE60',label:'Church'},
+    'buddhist_temple': {icon:'ti-yin-yang',        color:'#9B59B6',label:'Buddhist vihara'},
+    'hospital':        {icon:'ti-building-hospital',color:'#C0392B',label:'Hospital'},
+    'school':          {icon:'ti-school',          color:'#1A6E6E',label:'School'},
+    'college':         {icon:'ti-building-community',color:'#1A6E6E',label:'College'},
+    'pharmacy':        {icon:'ti-pill',            color:'#1A6E6E',label:'Pharmacy'},
+    'police':          {icon:'ti-shield',          color:'#2D4059',label:'Police station'},
+    'fire_station':    {icon:'ti-flame',           color:'#B93535',label:'Fire station'},
+    'bank':            {icon:'ti-building-bank',   color:'#A05A1A',label:'Bank'},
+    'supermarket':     {icon:'ti-shopping-cart',   color:'#A05A1A',label:'Supermarket'},
+    'industrial':      {icon:'ti-building-factory',color:'#7F8C8D',label:'Industrial'},
+  };
+  var cat = {}, nearby = [], seen = {};
+  elements.forEach(function(el) {
+    var tags = el.tags || {};
+    var amenity = tags.amenity || tags.shop || tags.landuse || '';
+    if (!amenity) return;
+    var elLat = el.lat != null ? el.lat : (el.center ? el.center.lat : null);
+    var elLon = el.lon != null ? el.lon : (el.center ? el.center.lon : null);
+    if (!elLat || !elLon) return;
+    var worship = (tags.religion || '').toLowerCase();
+    var nm = (tags.name || tags['name:en'] || tags['name:hi'] || '').toLowerCase();
+    var type = amenity;
+    if (amenity === 'place_of_worship') {
+      if (worship==='muslim'||nm.includes('masjid')||nm.includes('mosque')||nm.includes('dargah')) type='mosque';
+      else if (worship==='hindu'||nm.includes('mandir')||nm.includes('temple')||nm.includes('mata')||nm.includes('hanuman')||nm.includes('ganesh')||nm.includes('shiv')) type='temple';
+      else if (worship==='christian'||nm.includes('church')||nm.includes('chapel')) type='church';
+      else if (worship==='buddhist'||nm.includes('buddha')||nm.includes('vihar')) type='buddhist_temple';
+    }
+    if (amenity==='clinic') type='hospital';
+    var name = tags.name || tags['name:en'] || (POI[type]?POI[type].label:amenity);
+    var key = type+'|'+name;
+    if (seen[key]) return;
+    seen[key] = 1;
+    var d = distM(lat, lon, elLat, elLon);
+    nearby.push({type:type, name:name, d:d, cfg:POI[type]||POI['place_of_worship']});
+    cat[type] = (cat[type]||0) + 1;
+  });
+  nearby.sort(function(a,b){return a.d-b.d;});
+  var mosques=cat['mosque']||0, temples=cat['temple']||0, churches=cat['church']||0;
+  var buddhist=cat['buddhist_temple']||0, hospitals=cat['hospital']||0;
+  var schools=(cat['school']||0)+(cat['college']||0), industrial=cat['industrial']||0;
+  var wTotal=mosques+temples+churches+buddhist+(cat['place_of_worship']||0);
+  var profile='Mixed';
+  if (wTotal===0) profile='No data in OSM';
+  else if (mosques/wTotal>0.6) profile='Predominantly Muslim';
+  else if (temples/wTotal>0.6) profile='Predominantly Hindu';
+  else if (churches/wTotal>0.6) profile='Predominantly Christian';
+  else if (mosques/wTotal>0.45) profile='Muslim-majority mixed';
+  else if (temples/wTotal>0.45) profile='Hindu-majority mixed';
+  else if (mosques/wTotal>0.3&&temples/wTotal>0.3) profile='Muslim-Hindu mixed';
+
+  var indAlert = industrial>0 ? '<div class="aalert"><i class="ti ti-building-factory"></i><div><strong>Industrial land detected nearby.</strong> May indicate pollution or contamination risk for residential collateral.</div></div>' : '';
+  var noDataNote = wTotal===0 ? '<div class="cnote" style="margin-bottom:.75rem"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-2px"></i> No places of worship found in OSM within this radius. Try widening the radius.</div>' : '';
+
+  var listItems = nearby.slice(0,20).map(function(p) {
+    return '<div class="habitem"><i class="ti ' + (p.cfg?p.cfg.icon:'ti-map-pin') + '" style="color:' + (p.cfg?p.cfg.color:'#9BAABB') + '"></i>' +
+      '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + p.name + '</span>' +
+      '<span class="ftag">' + (p.cfg?p.cfg.label:p.type) + '</span>' +
+      '<span class="habdist">~' + p.d + 'm</span></div>';
+  }).join('');
+
+  return '<div class="habsum">' +
+    '<div class="habcard"><div class="habicon">&#x1F54C;</div><div class="habcount">' + mosques + '</div><div class="hablabel">Mosques</div></div>' +
+    '<div class="habcard"><div class="habicon">&#x1F6D5;</div><div class="habcount">' + temples + '</div><div class="hablabel">Temples</div></div>' +
+    '<div class="habcard"><div class="habicon">&#x1F3E5;</div><div class="habcount">' + hospitals + '</div><div class="hablabel">Hospitals</div></div>' +
+    '<div class="habcard"><div class="habicon">&#x1F3EB;</div><div class="habcount">' + schools + '</div><div class="hablabel">Schools</div></div>' +
+    '</div>' +
+    noDataNote + indAlert +
+    '<div class="zcard">' +
+    '<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9BAABB;padding:9px 13px;background:#F7F5F0;border-bottom:1px solid #EDEAE3">WORSHIP PROFILE — OSM Live Data</div>' +
+    '<div class="zrow"><span class="zkey">Character</span><span class="zval">' + profile + '</span></div>' +
+    '<div class="zrow"><span class="zkey">Mosques</span><span class="zval">' + mosques + '</span></div>' +
+    '<div class="zrow"><span class="zkey">Temples</span><span class="zval">' + temples + '</span></div>' +
+    '<div class="zrow"><span class="zkey">Churches</span><span class="zval">' + churches + '</span></div>' +
+    '<div class="zrow"><span class="zkey">Buddhist / Jain</span><span class="zval">' + (buddhist+(cat['jain_temple']||0)) + '</span></div>' +
+    '<div class="zrow"><span class="zkey">Hospitals / Clinics</span><span class="zval">' + hospitals + '</span></div>' +
+    '<div class="zrow"><span class="zkey">Schools / Colleges</span><span class="zval">' + schools + '</span></div>' +
+    '<div class="zrow"><span class="zkey">Banks</span><span class="zval">' + (cat['bank']||0) + '</span></div>' +
+    '<div class="zrow"><span class="zkey">Police / Fire</span><span class="zval">' + ((cat['police']||0)+(cat['fire_station']||0)) + '</span></div>' +
+    '<div class="zrow"><span class="zkey">Industrial land</span><span class="zval">' + industrial + '</span></div>' +
+    '</div>' +
+    (nearby.length>0 ? '<div class="hablist"><div class="hablist-title">Nearest ' + Math.min(nearby.length,20) + ' places</div>' + listItems + '</div>' : '') +
+    '<div class="cnote"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-2px"></i> Live from OpenStreetMap Overpass API — ' + nearby.length + ' amenities found within radius.</div>';
+}
+
+// ── MAIN SCAN ──
+async function doScan() {
+  var addr = el('addr').value.trim();
+  var pin  = el('pincode').value.trim();
+  var radM = parseInt(el('radius').value);
+  if (!addr) { el('addr').focus(); return; }
+
+  currentCity = (document.getElementById('city-sel')||{}).value || 'mumbai';
+  var cityConf = CITIES[currentCity] || CITIES.mumbai;
+  var btn = el('sbtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>&nbsp;Scanning...';
+  el('report').innerHTML = '';
+  el('lp').style.display = 'flex';
+  ['dp','acq','wb','zone','census','hab','wris'].forEach(function(id){setChip(id,'');});
+
+  try {
+    var _scanStart = Date.now();
+    var _timerInterval = setInterval(function(){
+      var secs = ((Date.now()-_scanStart)/1000).toFixed(1);
+      var smsg = document.getElementById('status');
+      if (smsg && smsg._scanMsg) smsg.innerHTML = '<span class="spinner"></span>' + smsg._scanMsg + ' <span style="color:#9BAABB">(' + secs + 's)</span>';
+    }, 200);
+    function setStat2(msg, spin) {
+      var smsg = document.getElementById('status');
+      if (smsg) { smsg._scanMsg = msg; }
+      setStat(msg + ' <span style="color:#9BAABB">(' + ((Date.now()-_scanStart)/1000).toFixed(1) + 's)</span>', spin);
+    }
+    setStat2('Geocoding address' + (pin ? ' (PIN ' + pin + ')' : '') + '...', true);
+    var loc = await geocode(addr, pin);
+
+    setStat2(loc.lat.toFixed(5) + ', ' + loc.lon.toFixed(5) + ' — querying 6 layers...', true);
+    ['dp','acq','wb','zone','census','hab','wris'].forEach(function(id){setChip(id,'loading');});
+
+    var censusData = guessWard(loc.display, loc.lat);
+    setChip('census','done');
+
+    var emptyGIS = {features:[]};
+    var gisPromises;
+    if (cityConf.hasLiveGIS) {
+      gisPromises = [
+        arcQ('DP_KYW',0,loc.lat,loc.lon,radM,'RES_CODE,RES_MAINTYPE,DISCRIPTION,WARD,RES_AREA').then(function(r){setChip('dp','done');return r;}),
+        arcQ('DP_MIS',0,loc.lat,loc.lon,radM,'RESERVATION_NAME,RESERVATION_NO,WARD,ACQUISITION_STATUS_OF_LAND,NAME_OF_OWNER,ACQUISITION_AREA_IN_SQ_MTS_').then(function(r){setChip('acq','done');return r;}),
+        arcQ('BaseLayersgdb',2,loc.lat,loc.lon,radM,'NAME_OF_LAKE,AVERAGE_RAINFALL').then(function(r){setChip('wb','done');return r;}),
+        arcQ('BaseLayersgdb',5,loc.lat,loc.lon,500,'Ward,Remark').then(function(r){setChip('zone','done');return r;}),
+        fetchHabitat(loc.lat,loc.lon,radM).then(function(r){setChip('hab','done');return r;}).catch(function(){setChip('hab','done');return {elements:[]};}),
+      ];
+    } else {
+      // Non-GIS city: skip MCGM calls, use OSM + Census only
+      setChip('dp','done'); setChip('acq','done'); setChip('wb','done'); setChip('zone','done');
+      gisPromises = [
+        Promise.resolve(emptyGIS),
+        Promise.resolve(emptyGIS),
+        Promise.resolve(emptyGIS),
+        Promise.resolve(emptyGIS),
+        fetchHabitat(loc.lat,loc.lon,radM).then(function(r){setChip('hab','done');return r;}).catch(function(){setChip('hab','done');return {elements:[]};}),
+      ];
+    }
+    var results = await Promise.all(gisPromises);
+
+    var dpR=results[0], acqR=results[1], wbR=results[2], zR=results[3], habR=results[4], wrisResult=results[5]||{source:'embedded',rivers:[]};
+    setStat2('Building report...', true);
+
+    // ── DEBUG: show progress visibly ──
+
+
+    var radKm = Math.round(radM/100)/10;
+    var zoneInfo = zR.features && zR.features[0] ? zR.features[0].properties : null;
+
+    var dpFlags = (dpR.features||[]).map(function(f) {
+      var p=f.properties, cen=centroid(f.geometry);
+      var txt=(p.DISCRIPTION||'')+(p.RES_MAINTYPE||'')+(p.RES_CODE||'');
+      return {sev:getSev(txt), dist:cen?distM(loc.lat,loc.lon,cen.lat,cen.lon):null,
+        ward:p.WARD, tag:p.RES_CODE,
+        title:p.DISCRIPTION||p.RES_MAINTYPE||p.RES_CODE||'DP Reservation',
+        ex:explain(txt), extra:p.RES_AREA?('<span>'+Math.round(p.RES_AREA)+' m2</span>'):'', feature:f};
+    }).sort(function(a,b){return ({red:0,amber:1,green:2}[a.sev]||1)-({red:0,amber:1,green:2}[b.sev]||1);});
+
+    var acqFlags = (acqR.features||[]).map(function(f) {
+      var p=f.properties, cen=centroid(f.geometry);
+      return {sev:'red', dist:cen?distM(loc.lat,loc.lon,cen.lat,cen.lon):null,
+        ward:p.WARD, tag:'Acquisition',
+        title:p.RESERVATION_NAME||'Land under Govt. acquisition',
+        ex:'Status: '+(p.ACQUISITION_STATUS_OF_LAND||'Active')+' | Owner: '+(p.NAME_OF_OWNER||'Unknown')+' | Area: '+(p.ACQUISITION_AREA_IN_SQ_MTS_||'?')+' sqm. MCGM acquisition proceedings active — critical collateral risk.',
+        extra:p.RESERVATION_NO?('<span>Res '+p.RESERVATION_NO+'</span>'):'', feature:f};
+    });
+
+    var wbFlags = (wbR.features||[]).map(function(f) {
+      var p=f.properties, cen=centroid(f.geometry);
+      return {sev:'red', dist:cen?distM(loc.lat,loc.lon,cen.lat,cen.lon):null,
+        ward:null, tag:'Flood risk',
+        title:p.NAME_OF_LAKE||'Waterbody nearby',
+        ex:'A waterbody within scan radius — flood risk, CRZ setback obligations, drainage concerns.'+(p.AVERAGE_RAINFALL?' Avg rainfall: '+p.AVERAGE_RAINFALL+' mm.':''),
+        extra:'', feature:f};
+    });
+
+    // ── SEISMIC ZONE ──
+    var seismicInfo = getSeismicZone(currentCity);
+
+    // ── ASI HERITAGE PROXIMITY CHECK ──
+    var asiHits = checkASIProximity(loc.lat, loc.lon, currentCity, radM);
+    var asiFlags = asiHits.map(function(hit) {
+      var m = hit.monument;
+      var isCritical = hit.zone === 'prohibited';
+      return {
+        sev: isCritical ? 'red' : 'amber',
+        dist: hit.dist,
+        ward: null,
+        tag: m.type + ' — ' + hit.zone + ' zone',
+        title: m.name + (isCritical ? ' — 100m PROHIBITED zone' : hit.zone === 'regulated' ? ' — regulated zone' : ' — nearby'),
+        ex: m.type === 'ASI'
+          ? (isCritical
+              ? 'Property is within 100m of an ASI-protected National Monument. Under the Ancient Monuments & Archaeological Sites & Remains (Amendment) Act 2010, NO construction is permitted in this zone. Loan should not be sanctioned without Ministry of Culture clearance.'
+              : 'Property is within 200m regulated zone of an ASI National Monument. Construction requires prior permission from the Archaeological Survey of India. Verify approval before sanction — violation can result in demolition orders.')
+          : 'Property is within 100m of a MCGM Grade I Heritage listed building. Alterations require Heritage Conservation Committee approval. Construction adjacent to heritage structures is heavily restricted.',
+        extra: '',
+        feature: null
+      };
+    });
+
+    // ── WRIS River flags ──
+    var wrisRivers = wrisResult.rivers || [];
+    var wrisSource = wrisResult.source || 'embedded';
+    var wrisFlags = wrisRivers.filter(function(rv){return rv.risk==='high'||rv.risk==='medium';}).map(function(rv) {
+      var sev = riverRiskToSev(rv.risk);
+      return {
+        sev: sev,
+        dist: rv.dist || null,
+        ward: null,
+        tag: 'WRIS · Order '+(rv.order||'?')+' river',
+        title: rv.name + (rv.risk==='high' ? ' — high flood risk' : ' — flood risk proximity'),
+        ex: 'A '+(rv.risk==='high'?'major':'significant')+' river (stream order '+(rv.order||'?')+') is within the scan radius per India WRIS data.'
+          + (rv.note?' '+rv.note:'')
+          + ' Properties within 100m of riverbanks may face NDMA/state flood restrictions and CRZ-like setback rules.',
+        extra: wrisSource==='live' ? '<span>Live WRIS data</span>' : '<span>WRIS embedded data</span>',
+        feature: null
+      };
+    });
+
+    var cityFlags = getCityRiskFlags(cityConf, censusData, habR.elements||[]);
+    var allFlags = dpFlags.concat(acqFlags).concat(wbFlags).concat(asiFlags).concat(wrisFlags).concat(cityFlags)
+      .sort(function(a,b){return ({red:0,amber:1,green:2}[a.sev]||1)-({red:0,amber:1,green:2}[b.sev]||1);});
+
+    var sc = scoreFlags(allFlags);
+    var v = getVerdict(sc);
+    var reds   = allFlags.filter(function(f){return f.sev==='red';}).length;
+    var ambers = allFlags.filter(function(f){return f.sev==='amber';}).length;
+    var greens = allFlags.filter(function(f){return f.sev==='green';}).length;
+    var hasAcq = acqFlags.length > 0;
+
+    // Map
+    var map;
+    try { map = initMap(loc.lat, loc.lon); }
+    catch(me) { map = null; }
+    L.circle([loc.lat,loc.lon],{radius:radM,color:'#0E1C2F',fillColor:'#0E1C2F',fillOpacity:0.04,weight:1,dashArray:'5,5'}).addTo(map);
+    dpFlags.forEach(function(f){addPoly(map,f.feature,SC[f.sev].mc,'<b>'+f.title+'</b>');});
+    acqFlags.forEach(function(f){addPoly(map,f.feature,'#B93535','<b>Acquisition</b><br>'+f.title);});
+    wbFlags.forEach(function(f){addPoly(map,f.feature,'#1A4E8C','<b>Waterbody</b><br>'+f.title);});
+    (habR.elements||[]).forEach(function(e) {
+      var tags=e.tags||{};
+      var eLat=e.lat!=null?e.lat:(e.center?e.center.lat:null);
+      var eLon=e.lon!=null?e.lon:(e.center?e.center.lon:null);
+      if (!eLat||!eLon) return;
+      var amenity=tags.amenity||tags.shop||tags.landuse||'';
+      if (!amenity) return;
+      var worship=(tags.religion||'').toLowerCase();
+      var nm=(tags.name||'').toLowerCase();
+      var color='#1A6E6E';
+      if (worship==='muslim'||nm.includes('masjid')||nm.includes('mosque')) color='#2C5FA6';
+      else if (worship==='hindu'||nm.includes('mandir')||nm.includes('temple')) color='#E8722A';
+      else if (worship==='christian'||nm.includes('church')) color='#27AE60';
+      else if (amenity==='place_of_worship') color='#5B3FA6';
+      else if (amenity==='hospital'||amenity==='clinic') color='#C0392B';
+      var ico=L.divIcon({html:'<div style="width:8px;height:8px;border-radius:50%;background:'+color+';border:1.5px solid #fff;opacity:0.9"></div>',className:'',iconAnchor:[4,4]});
+      L.marker([eLat,eLon],{icon:ico}).addTo(map).bindPopup('<b>'+(tags.name||tags['name:en']||amenity)+'</b>');
+    });
+    // ASI monument circles on map
+    if (map) {
+      getASIMonumentsForCity(currentCity).forEach(function(m) {
+        var d = distM(loc.lat, loc.lon, m.lat, m.lon);
+        if (d > radM + m.regulated_m) return;
+        if (m.prohibited_m > 0) {
+          L.circle([m.lat, m.lon], {radius:m.prohibited_m, color:m.color, fillColor:m.color, fillOpacity:0.15, weight:2, dashArray:'4,3'})
+            .addTo(map).bindPopup('<b>'+m.name+'</b><br>'+m.type+'<br><strong style="color:'+m.color+'">'+m.prohibited_m+'m PROHIBITED zone</strong>');
+        }
+        L.circle([m.lat, m.lon], {radius:m.regulated_m, color:m.color, fillColor:m.color, fillOpacity:0.06, weight:1.5, dashArray:'6,4'})
+          .addTo(map).bindPopup('<b>'+m.name+'</b><br>'+m.type+'<br>'+m.regulated_m+'m regulated zone');
+        var hIcon = L.divIcon({html:'<div style="width:10px;height:10px;border-radius:50%;background:'+m.color+';border:2px solid #fff;"></div>',className:'',iconAnchor:[5,5]});
+        L.marker([m.lat, m.lon], {icon:hIcon}).addTo(map).bindPopup('<b>'+m.name+'</b><br>'+m.id);
+      });
+    }
+    var pinIco=L.divIcon({html:'<div style="width:14px;height:14px;border-radius:50%;background:#0E1C2F;border:2.5px solid #fff;box-shadow:0 0 0 2px #0E1C2F"></div>',className:'',iconAnchor:[7,7]});
+    L.marker([loc.lat,loc.lon],{icon:pinIco}).addTo(map).bindPopup('<b>'+addr+'</b>').openPopup();
+
+    // Summary text
+    var sumText;
+    if (allFlags.length===0) {
+      sumText = 'No DP 2034 reservations, acquisitions, or waterbodies detected within ' + radKm + ' km. Ward ' + censusData.ward + ' (' + censusData.name + ') has ' + censusData.slum + '% slum population and ' + censusData.literacy + '% literacy. Area appears clear across all GIS layers.';
+    } else if (reds>0) {
+      sumText = reds + ' high-risk flag' + (reds>1?'s':'') + ' detected within ' + radKm + ' km.' +
+        (hasAcq ? ' Active government acquisition proceedings found.' : '') +
+        (ambers>0 ? ' Plus ' + ambers + ' medium-risk item' + (ambers>1?'s':'') + '.' : '') +
+        ' Ward ' + censusData.ward + ' has ' + censusData.slum + '% slum density and ' + censusData.muslim + '% Muslim community — check Waqf Board encumbrances.';
+    } else {
+      sumText = 'No critical red flags. ' + ambers + ' medium-risk item' + (ambers>1?'s':'') + ' noted. Ward ' + censusData.ward + ' (' + censusData.name + ') shows ' + censusData.slum + '% slum density — verify formal title documentation.';
+    }
+
+    // Checklist
+    var asiProhibited = asiHits.filter(function(h){return h.zone==='prohibited';}).length;
+    var asiRegulated  = asiHits.filter(function(h){return h.zone==='regulated';}).length;
+    var checks = [
+      {ok:reds===0,                text:'No critical (red) GIS flags in scan area'},
+      {ok:acqFlags.length===0,     text:'No active government acquisition proceedings'},
+      {ok:wbFlags.length===0,      text:'No waterbodies or flood-risk zones nearby'},
+      {ok:censusData.slum<55,      text:'Slum density below 55% (actual: '+censusData.slum+'%)'},
+      {ok:censusData.muslim<35,    text:'Muslim community below 35% — lower Waqf risk (actual: '+censusData.muslim+'%)'},
+      {ok:censusData.literacy>=78, text:'Literacy above 78% (actual: '+censusData.literacy+'%)'},
+      {ok:sc>=60,                  text:'Composite risk score at or above 60 (actual: '+sc+')'},
+    ];
+
+    // Render tabs
+    var flagsHTML = allFlags.length ? allFlags.map(renderFlag).join('') : '<div class="empty"><i class="ti ti-mood-happy"></i>No flags detected</div>';
+    var dpHTML    = dpFlags.length  ? dpFlags.map(renderFlag).join('')  : '<div class="empty"><i class="ti ti-mood-happy"></i>No DP reservations in radius</div>';
+    var acqHTML   = acqFlags.length ? acqFlags.map(renderFlag).join('') : '<div class="empty"><i class="ti ti-mood-happy"></i>No active acquisition proceedings</div>';
+    var wbHTML    = wbFlags.length  ? wbFlags.map(renderFlag).join('')  : '<div class="empty"><i class="ti ti-mood-happy"></i>No waterbodies in radius</div>';
+    var censusHTML, habitatHTML;
+    try { censusHTML = renderCensus(censusData); } catch(e) { censusHTML = '<div class="empty"><i class="ti ti-alert-triangle"></i>Census error: '+e.message+'</div>'; }
+    try { habitatHTML = renderHabitat(habR.elements||[], loc.lat, loc.lon); } catch(e) { habitatHTML = '<div class="empty"><i class="ti ti-alert-triangle"></i>Habitat error: '+e.message+'</div>'; }
+
+    var checklistHTML = checks.map(function(c) {
+      return '<div class="crow"><i class="ti ti-' + (c.ok?'circle-check':'circle-x') + '" style="color:' + (c.ok?'#2A6645':'#B93535') + '"></i><span>' + c.text + '</span></div>';
+    }).join('');
+
+    var zoneHTML = '';
+    if (zoneInfo) {
+      zoneHTML += '<div class="zcard"><div class="zrow"><span class="zkey">Ward</span><span class="zval">'+(zoneInfo.Ward||'—')+'</span></div><div class="zrow"><span class="zkey">Zone remark</span><span class="zval">'+(zoneInfo.Remark||'—')+'</span></div></div>';
+    }
+    zoneHTML += '<div class="zcard"><div class="zrow"><span class="zkey">Census Ward</span><span class="zval">Ward '+censusData.ward+' — '+censusData.name+'</span></div><div class="zrow"><span class="zkey">Areas covered</span><span class="zval" style="font-size:11px">'+censusData.areas+'</span></div><div class="zrow"><span class="zkey">Coordinates</span><span class="zval">'+loc.lat.toFixed(5)+', '+loc.lon.toFixed(5)+'</span></div><div class="zrow"><span class="zkey">Scan radius</span><span class="zval">'+radKm+' km</span></div></div>';
+
+    var acqAlertHTML = hasAcq ? '<div class="aalert"><i class="ti ti-alert-triangle"></i><div><strong>Active land acquisition detected.</strong> MCGM DP_MIS shows acquisition proceedings within radius — critical red flag for any mortgage product.</div></div>' : '';
+
+    // ── SAFE DOM ASSEMBLY ──
+    var reportEl = el('report');
+    reportEl.innerHTML = '';
+
+    function addHTML(html) {
+      var d = document.createElement('div');
+      d.innerHTML = html;
+      reportEl.appendChild(d);
+    }
+
+    // Alert
+    if (hasAcq) {
+      addHTML('<div class="aalert"><i class="ti ti-alert-triangle"></i><div><strong>Active land acquisition detected.</strong> MCGM DP_MIS shows acquisition proceedings within radius — critical red flag for any mortgage product.</div></div>');
+    }
+
+    // Verdict card
+    addHTML('<div class="vcard" style="border-color:'+v.border+';background:'+v.bg+'">' +
+      '<div class="vi" style="background:'+v.bg+';border:1.5px solid '+v.border+'"><i class="ti ti-'+v.icon+'" style="color:'+v.color+'"></i></div>' +
+      '<div style="flex:1;min-width:0"><div class="vlabel" style="color:'+v.color+'">'+v.label+'</div><div class="vtitle">'+v.title+'</div>' +
+      '<div class="vsub">'+addr+' &middot; '+radKm+'km &middot; '+allFlags.length+' flag'+(allFlags.length!==1?'s':'')+' &middot; Ward '+censusData.ward+'</div></div>' +
+      '<div class="scoreb"><div class="scoren" style="color:'+v.color+'">'+sc+'</div><div class="scorel">RISK / 100</div></div>' +
+    '</div>');
+
+    // Stats
+    addHTML('<div class="stats6" style="grid-template-columns:repeat(4,1fr)">' +
+      '<div class="sc"><div class="sv" style="color:#B93535">'+reds+'</div><div class="sl">High Risk</div></div>' +
+      '<div class="sc"><div class="sv" style="color:#A05A1A">'+ambers+'</div><div class="sl">Medium</div></div>' +
+      '<div class="sc"><div class="sv" style="color:#2A6645">'+greens+'</div><div class="sl">Positive</div></div>' +
+      '<div class="sc"><div class="sv" style="color:#1A4E8C">'+acqFlags.length+'</div><div class="sl">Acquisitions</div></div>' +
+    '</div>');
+    addHTML('<div class="stats6" style="grid-template-columns:repeat(3,1fr);margin-top:6px">' +
+      '<div class="sc" style="border-left:3px solid '+seismicInfo.color+'">' +
+        '<div class="sv" style="color:'+seismicInfo.color+'">Zone '+seismicInfo.zone+'</div>' +
+        '<div class="sl">Seismic zone (IS 1893)</div>' +
+      '</div>' +
+      '<div class="sc"><div class="sv" style="color:#5B3FA6">'+asiFlags.length+'</div><div class="sl">Heritage flags</div></div>' +
+      '<div class="sc"><div class="sv" style="color:#1A6E6E">'+censusData.literacy+'%</div><div class="sl">Literacy</div></div>' +
+    '</div>');
+
+    // Tabs
+    addHTML('<div class="tabs">' +
+      '<button class="tab active" onclick="switchTab(\'summary\',this)">Summary</button>' +
+      '<button class="tab" onclick="switchTab(\'all\',this)">All Flags ('+allFlags.length+')</button>' +
+      '<button class="tab" onclick="switchTab(\'dp\',this)">DP ('+dpFlags.length+')</button>' +
+      '<button class="tab" onclick="switchTab(\'acq\',this)">Acquisitions ('+acqFlags.length+')</button>' +
+      '<button class="tab" onclick="switchTab(\'water\',this)">Waterbodies ('+wbFlags.length+')</button>' +
+      '<button class="tab" onclick="switchTab(\'census\',this)">Census &amp; Community</button>' +
+      '<button class="tab" onclick="switchTab(\'habitat\',this)">Habitat Intel</button>' +
+      '<button class="tab" onclick="switchTab(\'zone\',this)">Ward &amp; Zone</button>' +
+    '</div>');
+
+    // Tab panels — each added separately
+
+    // Build Seismic + Heritage tab HTML
+    var seismicTabHTML = '';
+    // Seismic zone card
+    seismicTabHTML += '<div class="zcard" style="margin-bottom:.75rem;border-left:3px solid '+seismicInfo.color+'">';
+    seismicTabHTML += '<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9BAABB;padding:9px 13px;background:#F7F5F0;border-bottom:1px solid #EDEAE3">SEISMIC ZONE — IS 1893:2016 (BIS operative standard)</div>';
+    seismicTabHTML += '<div class="zrow"><span class="zkey">City</span><span class="zval">'+cityConf.name+'</span></div>';
+    seismicTabHTML += '<div class="zrow"><span class="zkey">Zone</span><span class="zval" style="color:'+seismicInfo.color+';font-size:18px;font-family:serif">Zone '+seismicInfo.zone+'</span></div>';
+    seismicTabHTML += '<div class="zrow"><span class="zkey">Hazard level</span><span class="zval" style="color:'+seismicInfo.color+'">'+seismicInfo.risk+' damage risk</span></div>';
+    seismicTabHTML += '<div class="zrow"><span class="zkey">Zone factor (Z)</span><span class="zval">'+seismicInfo.factor+'</span></div>';
+    seismicTabHTML += '<div class="zrow"><span class="zkey">Standard</span><span class="zval">IS 1893 Part 1 : 2016</span></div>';
+    seismicTabHTML += '</div>';
+    seismicTabHTML += '<div class="cnote" style="margin-bottom:1rem">'+seismicInfo.desc+'</div>';
+
+    // Bank checklist for seismic
+    seismicTabHTML += '<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9BAABB;margin-bottom:10px">LOAN OFFICER — SEISMIC CHECKLIST</div>';
+    seismicTabHTML += '<div class="checklist">';
+    seismicTabHTML += '<div class="crow"><i class="ti ti-'+(seismicInfo.zone==='II'?'circle-check':'alert-triangle')+'" style="color:'+(seismicInfo.zone==='II'?'#2A6645':'#A05A1A')+'"></i><span>Zone '+seismicInfo.zone+' — '+seismicInfo.risk+' seismic risk for this city</span></div>';
+    seismicTabHTML += '<div class="crow"><i class="ti ti-circle-check" style="color:#2A6645"></i><span>Verify building compliance with IS 1893:2016 lateral load requirements</span></div>';
+    seismicTabHTML += '<div class="crow"><i class="ti ti-'+(seismicInfo.zone!=='II'?'alert-triangle':'circle-check')+'" style="color:'+(seismicInfo.zone!=='II'?'#A05A1A':'#2A6645')+'"></i><span>Request structural audit for buildings older than 20 years in Zone '+seismicInfo.zone+'</span></div>';
+    seismicTabHTML += '<div class="crow"><i class="ti ti-circle-check" style="color:#2A6645"></i><span>Confirm building completion certificate includes seismic compliance</span></div>';
+    seismicTabHTML += '</div>';
+
+    // ASI Heritage
+    seismicTabHTML += '<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9BAABB;margin:1rem 0 10px">ASI & HERITAGE MONUMENTS IN SCAN RADIUS ('+(asiHits.length)+' found)</div>';
+    if (asiHits.length === 0) {
+      seismicTabHTML += '<div class="empty"><i class="ti ti-mood-happy" style="font-size:26px;display:block;margin-bottom:7px;opacity:.4"></i>No ASI or heritage monuments within scan radius — no construction restrictions from heritage law</div>';
+    } else {
+      asiHits.forEach(function(hit) {
+        var m = hit.monument;
+        var isPro = hit.zone === 'prohibited';
+        var isReg = hit.zone === 'regulated';
+        var sevColor = isPro ? '#B93535' : isReg ? '#A05A1A' : '#2A6645';
+        var sevBg    = isPro ? '#FAEAEA'  : isReg ? '#FBF0E2'  : '#E4F2EB';
+        seismicTabHTML += '<div class="fi">';
+        seismicTabHTML += '<span class="fsev" style="background:'+sevBg+';color:'+sevColor+';border-color:'+sevColor+'">'+(isPro?'Prohibited':isReg?'Regulated':'Nearby')+'</span>';
+        seismicTabHTML += '<div class="fb">';
+        seismicTabHTML += '<div class="ftitle">'+m.name+'</div>';
+        seismicTabHTML += '<div class="fdesc">'+m.type+' · '+m.loc+'</div>';
+        seismicTabHTML += '<div class="fmeta"><span>~'+hit.dist+'m from property</span>';
+        if (m.prohibited_m > 0) seismicTabHTML += '<span>'+m.prohibited_m+'m prohibited zone</span>';
+        seismicTabHTML += '<span>'+m.regulated_m+'m regulated zone</span>';
+        seismicTabHTML += '<span class="ftag">'+m.id+'</span></div>';
+        seismicTabHTML += '<div class="fdesc" style="margin-top:6px;color:#B93535">'+(isPro?'CONSTRUCTION PROHIBITED — Ministry of Culture clearance required before any loan sanction':isReg?'Construction requires prior ASI permission — verify approval status':'Within extended heritage influence zone. No immediate restriction but verify with local heritage authority.')+'</div>';
+        seismicTabHTML += '</div></div>';
+      });
+    }
+    seismicTabHTML += '<div class="cnote" style="margin-top:.75rem"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-2px"></i> Source: Archaeological Survey of India (ASI) — Monuments of National Importance. Zones under the Ancient Monuments & Archaeological Sites & Remains (Amendment & Validation) Act 2010. MCGM Heritage data from MCF 2014 listed buildings.</div>';
+
+    addHTML('<div id="tab-seismic" class="tpanel">'+seismicTabHTML+'</div>');
+
+
+    // WRIS River tab
+    var wrisTabHTML = '';
+    wrisTabHTML += '<div class="zcard" style="margin-bottom:.75rem;border-left:3px solid #1A4E8C">';
+    wrisTabHTML += '<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9BAABB;padding:9px 13px;background:#F7F5F0;border-bottom:1px solid #EDEAE3">INDIA WRIS RIVER PROXIMITY — '+(wrisSource==='live'?'LIVE DATA':'EMBEDDED DATA')+'</div>';
+    wrisTabHTML += '<div class="zrow"><span class="zkey">Data source</span><span class="zval">'+(wrisSource==='live'?'India WRIS ArcGIS live':'India WRIS embedded dataset')+'</span></div>';
+    wrisTabHTML += '<div class="zrow"><span class="zkey">Rivers found</span><span class="zval">'+wrisRivers.length+'</span></div>';
+    wrisTabHTML += '<div class="zrow"><span class="zkey">High risk</span><span class="zval" style="color:#B93535">'+wrisRivers.filter(function(r){return r.risk==='high';}).length+'</span></div>';
+    wrisTabHTML += '<div class="zrow"><span class="zkey">Medium risk</span><span class="zval" style="color:#A05A1A">'+wrisRivers.filter(function(r){return r.risk==='medium';}).length+'</span></div>';
+    wrisTabHTML += '</div>';
+
+    if (wrisRivers.length === 0) {
+      wrisTabHTML += '<div class="empty"><i class="ti ti-mood-happy" style="font-size:26px;display:block;margin-bottom:7px;opacity:.4"></i>No significant rivers in scan radius per WRIS data</div>';
+    } else {
+      wrisRivers.forEach(function(rv) {
+        var sev = riverRiskToSev(rv.risk);
+        var sc2 = {red:{bg:'#FAEAEA',color:'#B93535',border:'#DDAAAA',label:'High flood risk'},
+                   amber:{bg:'#FBF0E2',color:'#A05A1A',border:'#D9B87A',label:'Moderate risk'},
+                   green:{bg:'#E4F2EB',color:'#2A6645',border:'#88C4A5',label:'Low risk'}}[sev];
+        wrisTabHTML += '<div class="fi">';
+        wrisTabHTML += '<span class="fsev" style="background:'+sc2.bg+';color:'+sc2.color+';border-color:'+sc2.border+'">'+sc2.label+'</span>';
+        wrisTabHTML += '<div class="fb">';
+        wrisTabHTML += '<div class="ftitle">'+rv.name+'</div>';
+        if (rv.note) wrisTabHTML += '<div class="fdesc">'+rv.note+'</div>';
+        wrisTabHTML += '<div class="fmeta">';
+        if (rv.dist) wrisTabHTML += '<span>~'+rv.dist+'m from property</span>';
+        if (rv.order) wrisTabHTML += '<span>Stream order '+rv.order+'</span>';
+        if (rv.system) wrisTabHTML += '<span>'+rv.system+' basin</span>';
+        wrisTabHTML += '</div></div></div>';
+      });
+    }
+    wrisTabHTML += '<div class="cnote" style="margin-top:.75rem"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-2px"></i> Source: India Water Resources Information System (WRIS), Ministry of Jal Shakti / CWC. River stream order: 1=smallest stream, 8+=major river. Properties within 100m of rivers may be subject to state flood-line regulations and NDMA flood hazard zone rules.</div>';
+
+    addHTML('<div id="tab-wris" class="tpanel">'+wrisTabHTML+'</div>');
+
+    // RERA tab
+    var reraTabHTML = buildReraTabHTML(currentCity, addr, pin, loc);
+    addHTML('<div id="tab-rera" class="tpanel">'+reraTabHTML+'</div>');
+
+    addHTML('<div id="tab-summary" class="tpanel active">' +
+      '<div class="sbox">'+sumText+'</div>' +
+      '<div class="slabel" style="margin-bottom:10px">Loan Officer Checklist</div>' +
+      '<div class="checklist">'+checklistHTML+'</div>' +
+    '</div>');
+
+    addHTML('<div id="tab-all" class="tpanel">'+flagsHTML+'</div>');
+    addHTML('<div id="tab-dp" class="tpanel">'+dpHTML+'</div>');
+    addHTML('<div id="tab-acq" class="tpanel"><div style="font-size:11px;color:#9BAABB;margin-bottom:10px">Source: MCGM DP_MIS ACQ_PLOT_VIEW</div>'+acqHTML+'</div>');
+    addHTML('<div id="tab-water" class="tpanel">'+wbHTML+'</div>');
+
+    // Census — isolated
+    var censusDiv = document.createElement('div');
+    censusDiv.id = 'tab-census';
+    censusDiv.className = 'tpanel';
+    try { censusDiv.innerHTML = censusHTML; } catch(e) { censusDiv.textContent = 'Census error: ' + e.message; }
+    reportEl.appendChild(censusDiv);
+
+    // Habitat — isolated
+    var habDiv = document.createElement('div');
+    habDiv.id = 'tab-habitat';
+    habDiv.className = 'tpanel';
+    try { habDiv.innerHTML = habitatHTML; } catch(e) { habDiv.textContent = 'Habitat error: ' + e.message; }
+    reportEl.appendChild(habDiv);
+
+    addHTML('<div id="tab-zone" class="tpanel">'+zoneHTML+'</div>');
+    addHTML('<div class="actrow"><button class="actbtn primary" onclick="window.print()"><i class="ti ti-printer"></i> Print report</button><button class="actbtn" onclick="resetTool()"><i class="ti ti-refresh"></i> New scan</button></div>');
+    var gisSource = cityConf.hasLiveGIS ? 'MCGM DP_KYW &middot; DP_MIS &middot; BaseLayersgdb (live) &middot; ' : cityConf.name + ' — city-specific risk rules &middot; ';
+    gisSource += 'WRIS Rivers ('+(wrisSource==='live'?'live':'embedded')+') &middot; RERA: '+RERA_CONFIG[currentCity].authority+' &middot; ';
+    addHTML('<div class="srcnote"><i class="ti ti-database" style="font-size:11px"></i> ' + gisSource + 'Census of India 2011 &middot; OSM Overpass &middot; Nominatim &middot; ' + new Date().toLocaleString('en-IN') + '</div>');
+
+    clearInterval(_timerInterval);
+    setStat('');
+    el('lp').style.display = 'none';
+
+  } catch(e) {
+    console.error('Scan error:', e);
+    clearInterval(_timerInterval);
+    setStat('');
+    el('lp').style.display = 'none';
+    el('report').innerHTML = '<div class="errbox"><i class="ti ti-alert-triangle"></i>&nbsp;<strong>Error:</strong> ' + (e.message||'Unknown error') + '</div>';
+  } finally {
+    var b = el('sbtn');
+    b.disabled = false;
+    b.innerHTML = '<i class="ti ti-scan"></i> Run Full Risk Scan';
+  }
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tpanel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  var panel = document.getElementById('tab-'+id);
+  if (panel) panel.classList.add('active');
+  btn.classList.add('active');
+}
+
+if (typeof document !== "undefined") { try { renderSamples(); onCityChange(); } catch(e){} }
+
+function resetTool() {
+  el('addr').value = '';
+  el('report').innerHTML = '<div class="welcome"><div class="welcome-icon"><i class="ti ti-building-bank"></i></div><h2>Mumbai DP 2034 &middot; Property Risk</h2><p>Enter a property address for a full risk scan across GIS reservations, land acquisitions, waterbodies, census demographics, and live habitat intelligence.</p><div class="wchips"><div class="wchip"><i class="ti ti-map-pin"></i>DP 2034 GIS</div><div class="wchip"><i class="ti ti-gavel"></i>Acquisitions</div><div class="wchip"><i class="ti ti-users"></i>Census 2011</div><div class="wchip"><i class="ti ti-building"></i>Habitat POIs</div></div></div>';
+  el('mmt').style.display = 'flex';
+  el('mleg').classList.remove('show');
+  setStat('');
+  el('lp').style.display = 'none';
+  if (leafMap) { leafMap.remove(); leafMap = null; }
+}
+
+</script>
+</body>
+</html>
